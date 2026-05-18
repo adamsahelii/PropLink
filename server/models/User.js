@@ -52,11 +52,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-// Hash password only when it is new or changed
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next()
+// Hash password only when it is new or changed.
+// No `next` parameter — Mongoose 7+ runs async hooks in Promise mode,
+// meaning it awaits the returned promise and never injects `next`.
+// Declaring `next` as a parameter causes it to be undefined → crash.
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return
   this.password = await bcrypt.hash(this.password, 12)
-  next()
 })
 
 // Compare a plain-text candidate against the stored hash
@@ -70,8 +72,6 @@ userSchema.methods.toJSON = function () {
   delete obj.password
   return obj
 }
-
-userSchema.index({ email: 1 })
 userSchema.index({ role: 1 })
 userSchema.index({ isActive: 1 })
 

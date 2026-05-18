@@ -11,8 +11,10 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/
  *   router.post('/register', validate(rules.register), register)
  */
 
-const validate = (ruleFn) => (req, res, next) => {
-  const error = ruleFn(req.body)
+const validate = (ruleFn) => (req, _res, next) => {
+  // Guard against missing body — happens when Content-Type header is absent
+  // and Express cannot parse the request, leaving req.body as undefined.
+  const error = ruleFn(req.body || {})
   if (error) return next(new AppError(error, 400))
   next()
 }

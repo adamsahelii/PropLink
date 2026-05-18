@@ -1,15 +1,11 @@
 const mongoose = require('mongoose')
 
-// ── Sub-schemas (no _id needed) ─────────────────────────────────────────────
+// ── Sub-schemas ───────────────────────────────────────────────────────────────
 
 const geoPointSchema = new mongoose.Schema(
   {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point',
-    },
-    // [longitude, latitude] — GeoJSON order, required for 2dsphere queries
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    // GeoJSON order: [longitude, latitude] — required for 2dsphere queries
     coordinates: {
       type: [Number],
       validate: {
@@ -23,11 +19,7 @@ const geoPointSchema = new mongoose.Schema(
 
 const locationSchema = new mongoose.Schema(
   {
-    city: {
-      type: String,
-      required: [true, 'City is required'],
-      trim: true,
-    },
+    city: { type: String, required: [true, 'City is required'], trim: true },
     area: { type: String, trim: true },
     address: { type: String, trim: true },
     coordinates: geoPointSchema,
@@ -38,12 +30,12 @@ const locationSchema = new mongoose.Schema(
 const imageSchema = new mongoose.Schema(
   {
     url: { type: String, required: true },
-    publicId: { type: String, required: true }, // Cloudinary public_id for deletion
+    publicId: { type: String, required: true }, // Cloudinary public_id needed for deletion
   },
   { _id: false }
 )
 
-// ── Main schema ──────────────────────────────────────────────────────────────
+// ── Main schema ───────────────────────────────────────────────────────────────
 
 const listingSchema = new mongoose.Schema(
   {
@@ -72,18 +64,12 @@ const listingSchema = new mongoose.Schema(
     propertyType: {
       type: String,
       required: [true, 'Property type is required'],
-      enum: {
-        values: ['apartment', 'land'],
-        message: 'Property type must be apartment or land',
-      },
+      enum: { values: ['apartment', 'land'], message: 'Property type must be apartment or land' },
     },
     purpose: {
       type: String,
       required: [true, 'Purpose is required'],
-      enum: {
-        values: ['rent', 'sale'],
-        message: 'Purpose must be rent or sale',
-      },
+      enum: { values: ['rent', 'sale'], message: 'Purpose must be rent or sale' },
     },
     price: {
       type: Number,
@@ -94,7 +80,6 @@ const listingSchema = new mongoose.Schema(
       type: locationSchema,
       required: [true, 'Location is required'],
     },
-    // Square metres — applies to both apartments and land plots
     size: {
       type: Number,
       min: [0, 'Size must be a positive number'],
@@ -115,29 +100,38 @@ const listingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: {
-        values: ['available', 'pending', 'rented', 'sold'],
-        message: 'Invalid listing status',
-      },
+      enum: { values: ['available', 'pending', 'rented', 'sold'], message: 'Invalid listing status' },
       default: 'available',
     },
     approvalStatus: {
       type: String,
-      enum: {
-        values: ['pending', 'approved', 'rejected'],
-        message: 'Invalid approval status',
-      },
+      enum: { values: ['pending', 'approved', 'rejected'], message: 'Invalid approval status' },
       default: 'pending',
+    },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    // Soft delete — never permanently remove listings, only hide them
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }
 )
 
-// ── Slug generation ──────────────────────────────────────────────────────────
+// ── Slug generation ───────────────────────────────────────────────────────────
+// No `next` parameter — Mongoose 7+ runs async pre hooks in Promise mode.
+// Declaring `next` causes it to be undefined → TypeError at runtime.
 
-listingSchema.pre('save', async function (next) {
-  // Regenerate slug only when the title changes or no slug exists yet
-  if (!this.isModified('title') && this.slug) return next()
+listingSchema.pre('save', async function () {
+  if (!this.isModified('title') && this.slug) return
 
   const base = this.title
     .toLowerCase()
@@ -146,25 +140,20 @@ listingSchema.pre('save', async function (next) {
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
 
-  // 5-char random suffix keeps slugs unique without a DB lookup
   const suffix = Math.random().toString(36).substring(2, 7)
   this.slug = `${base}-${suffix}`
-  next()
 })
 
-// ── Indexes ──────────────────────────────────────────────────────────────────
+// ── Indexes ───────────────────────────────────────────────────────────────────
+// isDeleted is the first field in every compound index — every real query
+// filters on it, so MongoDB can prune deleted docs before evaluating other conditions.
 
-listingSchema.index({ ownerId: 1 })
-listingSchema.index({ status: 1, approvalStatus: 1 })
+listingSchema.index({ isDeleted: 1, approvalStatus: 1, status: 1 })
+listingSchema.index({ isDeleted: 1, ownerId: 1 })
 listingSchema.index({ propertyType: 1, purpose: 1 })
 listingSchema.index({ 'location.city': 1 })
 listingSchema.index({ price: 1 })
 listingSchema.index({ createdAt: -1 })
-
-// Geospatial index — sparse so listings without coordinates are not rejected
-listingSchema.index(
-  { 'location.coordinates': '2dsphere' },
-  { sparse: true }
-)
+listingSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true })
 
 module.exports = mongoose.model('Listing', listingSchema)

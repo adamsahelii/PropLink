@@ -7,10 +7,12 @@ router.get('/test', (_req, res) => {
 })
 
 router.use('/auth', require('./auth'))
+router.use('/listings', require('./listings'))
+router.use('/favorites', require('./favorites'))
+router.use('/inquiries', require('./inquiries'))
 router.use('/example', require('./example'))
 
 // Future route mounts:
-// router.use('/listings', require('./listings'))
-// router.use('/users',    require('./users'))
+// router.use('/users', require('./users'))
 
 module.exports = router
