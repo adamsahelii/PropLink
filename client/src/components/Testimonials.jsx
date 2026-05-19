@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 
 const TESTIMONIALS = [
   {
@@ -8,59 +8,101 @@ const TESTIMONIALS = [
     name: 'Rania K.',
     role: 'Tenant · Beirut',
     delay: 0,
-    floatOffset: 0,
   },
   {
     id: 2,
-    quote: 'Listing my property was simple and clean. I received serious inquiries within 48 hours, no middlemen, no hidden fees.',
+    quote: 'Listing my property was seamless. I received serious inquiries within 48 hours — no middlemen, no hidden fees. Exactly what Lebanon needed.',
     name: 'Georges M.',
     role: 'Property Owner · Jounieh',
-    delay: 0.15,
-    floatOffset: 30,
+    delay: 0.12,
   },
   {
     id: 3,
     quote: 'I contacted the owner directly and booked a viewing the same day. PropLink is the only platform I trust for Lebanese real estate.',
     name: 'Sara H.',
     role: 'Buyer · Batroun',
-    delay: 0.3,
-    floatOffset: 0,
+    delay: 0.22,
+  },
+  {
+    id: 4,
+    quote: 'After months on other platforms I found my dream villa on PropLink in under a week. The quality of listings is simply unmatched anywhere.',
+    name: 'Karim N.',
+    role: 'Buyer · Metn',
+    delay: 0.08,
+  },
+  {
+    id: 5,
+    quote: 'As a property manager with multiple units, PropLink gave me the visibility I needed. Occupancy improved dramatically within the first month.',
+    name: 'Layla B.',
+    role: 'Property Manager · Byblos',
+    delay: 0.18,
   },
 ]
 
 export default function Testimonials() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const sectionRef = useRef(null)
+  const headerRef  = useRef(null)
+  const isInView   = useInView(headerRef, { once: true, margin: '-80px' })
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%'])
 
   return (
     <section
-      ref={ref}
-      className="relative py-28 px-4 overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, #141414 0%, #1C1C1C 50%, #111111 100%)' }}
+      ref={sectionRef}
+      className="relative py-44 md:py-56 px-4 overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, #111111 0%, #181818 55%, #0d0d0d 100%)' }}
     >
-      {/* Large faded background text */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span
-          className="font-serif font-bold text-white uppercase tracking-widest select-none text-center leading-none"
-          style={{ fontSize: 'clamp(48px, 9vw, 130px)', opacity: 0.028, whiteSpace: 'nowrap' }}
-        >
-          WHAT OUR CLIENTS SAY
-        </span>
-      </div>
-
-      {/* Subtle gold radial glow */}
+      {/* Bottom gradient — eases into the ivory CTA section below */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse, rgba(201,162,77,0.06) 0%, transparent 70%)' }}
+        className="absolute bottom-0 left-0 right-0 h-36 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, transparent, #F7F3EA)' }}
+        aria-hidden="true"
       />
+
+      {/* Subtle gold grid texture */}
+      <div
+        className="absolute inset-0 opacity-[0.022] pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(#C9A24D 1px, transparent 1px), linear-gradient(90deg, #C9A24D 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+        }}
+      />
+
+      {/* Radial gold glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[450px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(201,162,77,0.055) 0%, transparent 68%)' }}
+      />
+
+      {/* Parallax background text — two stacked lines for composition depth */}
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none overflow-hidden"
+        style={{ y: bgY, gap: '0.15em' }}
+      >
+        <span
+          className="font-serif font-bold text-white uppercase tracking-[0.18em] select-none leading-none"
+          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.044, whiteSpace: 'nowrap' }}
+        >
+          WHAT OUR
+        </span>
+        <span
+          className="font-serif font-bold text-white uppercase tracking-[0.18em] select-none leading-none"
+          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.028, whiteSpace: 'nowrap' }}
+        >
+          CLIENTS SAY
+        </span>
+      </motion.div>
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
+          ref={headerRef}
           initial={{ opacity: 0, y: 36 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-8 bg-gold/50" />
@@ -72,64 +114,74 @@ export default function Testimonials() {
           </h2>
         </motion.div>
 
-        {/* Cards — staggered heights on desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map(({ id, quote, name, role, delay, floatOffset }) => (
-            <motion.div
-              key={id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: floatOffset } : {}}
-              transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94], delay }}
-            >
-              <FloatingCard quote={quote} name={name} role={role} floatDelay={delay} />
-            </motion.div>
-          ))}
+        {/* Row 1 — 3 cards, staggered vertically */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 mb-5 md:mb-6">
+          <div>
+            <TestimonialCard {...TESTIMONIALS[0]} />
+          </div>
+          <div className="md:-mt-12">
+            <TestimonialCard {...TESTIMONIALS[1]} />
+          </div>
+          <div className="md:mt-16">
+            <TestimonialCard {...TESTIMONIALS[2]} />
+          </div>
+        </div>
+
+        {/* Row 2 — 2 cards, centered, slightly offset */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 md:max-w-[67%] md:mx-auto">
+          <div className="md:mt-6">
+            <TestimonialCard {...TESTIMONIALS[3]} />
+          </div>
+          <div className="md:-mt-4">
+            <TestimonialCard {...TESTIMONIALS[4]} />
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-function FloatingCard({ quote, name, role, floatDelay }) {
+function TestimonialCard({ quote, name, role, delay }) {
   return (
     <motion.div
-      animate={{ y: [0, -10, 0] }}
-      transition={{ duration: 5.5 + floatDelay * 2, repeat: Infinity, ease: 'easeInOut', delay: floatDelay * 1.5 }}
-      className="h-full rounded-3xl p-7 border border-white/8 relative overflow-hidden transition-shadow duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
+      initial={{ opacity: 0, y: 44 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: 0.72, ease: [0.25, 0.46, 0.45, 0.94], delay }}
+      whileHover={{
+        y: -8,
+        boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.09)',
+        transition: { type: 'spring', stiffness: 280, damping: 22, mass: 0.8 },
+      }}
+      className="rounded-3xl p-7 border border-white/[0.07] relative overflow-hidden"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: 'rgba(255,255,255,0.042)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
         boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
       }}
     >
       {/* Gold quote mark */}
-      <div className="text-gold text-5xl font-serif leading-none mb-4 select-none" style={{ opacity: 0.7 }}>
+      <div className="text-gold/85 text-5xl font-serif leading-none mb-4 select-none">
         &ldquo;
       </div>
 
-      {/* Quote */}
-      <p className="text-white/75 text-sm leading-relaxed mb-6">
-        {quote}
-      </p>
+      <p className="text-white/85 text-sm leading-relaxed mb-6">{quote}</p>
 
-      {/* Author */}
-      <div className="flex items-center gap-3 border-t border-white/8 pt-5">
-        <div
-          className="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center text-gold font-serif text-sm font-bold shrink-0"
-        >
+      <div className="flex items-center gap-3 border-t border-white/[0.08] pt-5">
+        <div className="w-9 h-9 rounded-full bg-gold/25 flex items-center justify-center text-gold font-serif text-sm font-bold shrink-0">
           {name[0]}
         </div>
         <div>
           <p className="text-white text-sm font-semibold">{name}</p>
-          <p className="text-white/40 text-xs">{role}</p>
+          <p className="text-white/60 text-xs tracking-wide">{role}</p>
         </div>
       </div>
 
-      {/* Subtle corner glow */}
+      {/* Subtle corner accent */}
       <div
-        className="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(201,162,77,0.12) 0%, transparent 70%)' }}
+        className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(201,162,77,0.13) 0%, transparent 70%)' }}
       />
     </motion.div>
   )

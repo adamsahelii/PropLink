@@ -1,27 +1,120 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fadeUp } from '../utils/motion'
 
 const CITIES   = ['Beirut', 'Jounieh', 'Jbeil', 'Tripoli', 'Sidon', 'Tyre', 'Zahle', 'Batroun']
 const TYPES    = ['Apartment', 'Land']
 const PURPOSES = ['For Rent', 'For Sale']
-const PRICES   = ['Any Price', 'Under $100K', '$100K – $300K', '$300K – $700K', '$700K+']
+const PRICES   = ['Under $100K', '$100K – $300K', '$300K – $700K', '$700K+']
 
 function SelectField({ label, value, onChange, options, placeholder }) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
+
+  // Close on outside click or Escape
+  useEffect(() => {
+    if (!open) return
+    const onOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onOutside)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onOutside)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const select = (opt) => {
+    onChange({ target: { value: opt } })
+    setOpen(false)
+  }
+
+  const clear = () => {
+    onChange({ target: { value: '' } })
+    setOpen(false)
+  }
+
   return (
-    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-      <label className="text-[10px] font-semibold tracking-[0.15em] text-forest/50 uppercase">
+    <div ref={containerRef} className="flex flex-col gap-1.5 flex-1 min-w-0 relative">
+      <label className="text-[10px] font-semibold tracking-[0.15em] text-forest/72 uppercase">
         {label}
       </label>
-      <select
-        value={value}
-        onChange={onChange}
-        className="border-b border-gray-200 focus:border-gold outline-none text-sm text-charcoal py-2 bg-transparent cursor-pointer transition-colors duration-200 appearance-none"
+
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center justify-between w-full border-b py-2 text-sm text-left outline-none cursor-pointer transition-colors duration-200 gap-2 ${
+          open ? 'border-gold' : 'border-gray-200 hover:border-forest/30'
+        } ${value ? 'text-charcoal' : 'text-charcoal/50'}`}
       >
-        <option value="">{placeholder}</option>
-        {options.map((o) => <option key={o}>{o}</option>)}
-      </select>
+        <span className="truncate">{value || placeholder}</span>
+        <svg
+          className={`w-3 h-3 text-forest/55 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {/* Custom dropdown panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            role="listbox"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.14, ease: 'easeOut' }}
+            className="absolute top-full left-0 mt-2 z-50 bg-white rounded-2xl shadow-xl shadow-charcoal/10 border border-black/[0.06] overflow-hidden min-w-full"
+          >
+            {/* Placeholder / clear row */}
+            <li>
+              <button
+                type="button"
+                role="option"
+                aria-selected={!value}
+                onClick={clear}
+                className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors duration-150 ${
+                  !value
+                    ? 'text-forest bg-forest/[0.06] font-semibold'
+                    : 'text-charcoal/40 hover:bg-ivory hover:text-forest/70'
+                }`}
+              >
+                {placeholder}
+              </button>
+            </li>
+
+            {/* Separator */}
+            <li aria-hidden="true">
+              <div className="mx-3 border-t border-gray-100" />
+            </li>
+
+            {/* Options */}
+            {options.map((opt) => (
+              <li key={opt}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={value === opt}
+                  onClick={() => select(opt)}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors duration-150 ${
+                    value === opt
+                      ? 'text-gold font-semibold bg-gold/[0.07]'
+                      : 'text-charcoal/70 hover:bg-ivory hover:text-forest'
+                  }`}
+                >
+                  {opt}
+                </button>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -38,6 +131,7 @@ export default function SearchBar() {
     if (form.city)    params.set('city',         form.city)
     if (form.type)    params.set('propertyType', form.type.toLowerCase())
     if (form.purpose) params.set('purpose',      form.purpose === 'For Rent' ? 'rent' : 'sale')
+    if (form.price)   params.set('price',        form.price)
     navigate(`/listings?${params.toString()}`)
   }
 
@@ -52,10 +146,9 @@ export default function SearchBar() {
       >
         <form
           onSubmit={handleSearch}
-          className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-[30px] p-7 md:p-9"
+          className="bg-white/97 backdrop-blur-xl shadow-2xl rounded-[30px] p-7 md:p-9"
         >
-          {/* Label row */}
-          <p className="text-[10px] font-semibold tracking-[0.2em] text-forest/40 uppercase mb-6">
+          <p className="text-[10px] font-semibold tracking-[0.2em] text-charcoal/55 uppercase mb-6">
             Smart Property Search
           </p>
 
@@ -90,7 +183,7 @@ export default function SearchBar() {
                 label="Price Range"
                 value={form.price}
                 onChange={set('price')}
-                options={PRICES.slice(1)}
+                options={PRICES}
                 placeholder="Any Price"
               />
             </div>

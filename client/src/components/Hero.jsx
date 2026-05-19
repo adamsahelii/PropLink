@@ -50,8 +50,8 @@ export default function Hero() {
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.28)' }} />
       {/* Top vignette — dark for navbar legibility */}
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.58) 0%, transparent 32%)' }} />
-      {/* Bottom vignette — deeper for SearchBar overlap */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,6,2,0.88) 0%, rgba(10,6,2,0.30) 28%, transparent 55%)' }} />
+      {/* Bottom vignette — light enough to not fog the SearchBar */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,6,2,0.52) 0%, rgba(10,6,2,0.12) 24%, transparent 50%)' }} />
       {/* Subtle warm tint on sides to frame text */}
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(4,3,2,0.22) 100%)' }} />
 
@@ -152,21 +152,6 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40"
-      >
-        <span className="text-[9px] tracking-[0.35em] uppercase">Scroll</span>
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}>
-          <svg width="16" height="26" viewBox="0 0 16 26" fill="none">
-            <rect x="0.5" y="0.5" width="15" height="25" rx="7.5" stroke="currentColor" strokeOpacity="0.45" />
-            <rect x="7" y="5" width="2" height="7" rx="1" fill="currentColor" />
-          </svg>
-        </motion.div>
-      </motion.div>
     </section>
   )
 }
