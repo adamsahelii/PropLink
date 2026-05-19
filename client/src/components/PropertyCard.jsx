@@ -10,7 +10,8 @@ const CARD_IMAGES = [
 ]
 
 export default function PropertyCard({ property, index = 0 }) {
-  const { title, location, price, propertyType, purpose, bedrooms, bathrooms, slug } = property
+  const { title, location, price, propertyType, purpose, bedrooms, bathrooms, size, images, slug } = property
+  const imgSrc = images?.[0]?.url || CARD_IMAGES[index % CARD_IMAGES.length]
 
   return (
     <motion.div
@@ -22,7 +23,7 @@ export default function PropertyCard({ property, index = 0 }) {
       {/* Image */}
       <div className="relative h-60 overflow-hidden rounded-t-3xl">
         <motion.img
-          src={CARD_IMAGES[index % CARD_IMAGES.length]}
+          src={imgSrc}
           alt={title}
           className="w-full h-full object-cover"
           whileHover={{ scale: 1.08 }}
@@ -70,19 +71,22 @@ export default function PropertyCard({ property, index = 0 }) {
           </span>
         </div>
 
-        {(bedrooms != null || bathrooms != null) && (
+        {(bedrooms != null || bathrooms != null || size != null) && (
           <div className="flex items-center gap-4 text-gray-400 text-sm mb-5 pb-4 border-b border-gray-100">
             {bedrooms != null && (
               <div className="flex items-center gap-1.5">
                 <IoBedOutline className="w-4 h-4" />
-                <span>{bedrooms} Beds</span>
+                <span>{bedrooms} {bedrooms === 1 ? 'Bed' : 'Beds'}</span>
               </div>
             )}
             {bathrooms != null && (
               <div className="flex items-center gap-1.5">
                 <IoWaterOutline className="w-4 h-4" />
-                <span>{bathrooms} Baths</span>
+                <span>{bathrooms} {bathrooms === 1 ? 'Bath' : 'Baths'}</span>
               </div>
+            )}
+            {size != null && (
+              <span className="ml-auto text-xs text-gray-400">{size.toLocaleString()} m²</span>
             )}
           </div>
         )}
