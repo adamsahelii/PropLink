@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ivory text-charcoal font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn-gold {
+    @apply inline-block bg-gold hover:bg-gold-dark text-white
+           font-sans font-medium text-sm tracking-widest uppercase
+           px-8 py-3.5 rounded-full transition-all duration-300
+           hover:shadow-lg hover:shadow-gold/30 hover:-translate-y-0.5;
+  }
+
+  .btn-outline-white {
+    @apply inline-block border border-white/50 hover:border-gold
+           text-white hover:text-gold font-sans font-medium
+           text-sm tracking-widest uppercase
+           px-8 py-3.5 rounded-full transition-all duration-300;
+  }
+
+  .btn-outline-forest {
+    @apply inline-block border border-forest hover:bg-forest
+           text-forest hover:text-white font-sans font-medium
+           text-sm tracking-widest uppercase
+           px-8 py-3.5 rounded-full transition-all duration-300;
+  }
+
+  /* ── Section heading ─────────────────────────────────────── */
+  .section-label {
+    @apply text-gold text-xs font-sans font-semibold tracking-[0.2em] uppercase;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl text-forest font-bold leading-tight;
+  }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: #F7F3EA; }
+::-webkit-scrollbar-thumb  { background: #0F3D2E; border-radius: 3px; }
