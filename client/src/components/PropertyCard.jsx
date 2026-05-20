@@ -11,7 +11,9 @@ const CARD_IMAGES = [
 
 export default function PropertyCard({ property, index = 0 }) {
   const { title, location, price, propertyType, purpose, bedrooms, bathrooms, size, images, slug } = property
-  const imgSrc = images?.[0]?.url || CARD_IMAGES[index % CARD_IMAGES.length]
+  const primarySrc  = images?.[0]?.url
+  const fallbackSrc = CARD_IMAGES[index % CARD_IMAGES.length]
+  const imgSrc      = primarySrc || fallbackSrc
 
   return (
     <motion.div
@@ -21,13 +23,17 @@ export default function PropertyCard({ property, index = 0 }) {
       className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:shadow-forest/10 transition-shadow duration-400"
     >
       {/* Image */}
-      <div className="relative h-60 overflow-hidden rounded-t-3xl">
+      <div className="relative h-60 overflow-hidden rounded-t-3xl bg-forest/10">
         <motion.img
           src={imgSrc}
           alt={title}
           className="w-full h-full object-cover"
           whileHover={{ scale: 1.08 }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          onError={e => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = fallbackSrc
+          }}
         />
 
         {/* Dark gradient bottom */}

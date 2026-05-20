@@ -15,7 +15,12 @@ import { staggerContainer } from '../utils/motion'
 
 // ── Filter data ───────────────────────────────────────────────────────────────
 
-const CITIES = ['Beirut', 'Jounieh', 'Jbeil', 'Tripoli', 'Sidon', 'Tyre', 'Zahle', 'Batroun']
+const CITIES = [
+  'Beirut', 'Tripoli', 'Sidon', 'Tyre', 'Zahle', 'Baalbek',
+  'Jounieh', 'Jbeil', 'Batroun', 'Akkar', 'Zgharta', 'Hermel',
+  'Bcharre', 'Keserwan', 'Metn', 'Baabda', 'Aley', 'Chouf',
+  'Nabatieh', 'Jezzine', 'Marjayoun', 'Hasbaya', 'Rachaya',
+]
 
 const TYPE_OPTS = [
   { label: 'Apartment', value: 'apartment' },
