@@ -4,10 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import LogoMark from './LogoMark'
 
 const NAV_LINKS = [
-  { label: 'Home',      to: '/' },
-  { label: 'Listings',  to: '/listings' },
-  { label: 'About',     to: '/about' },
-  { label: 'Contact',   to: '/contact' },
+  { label: 'Home',           to: '/' },
+  { label: 'Listings',       to: '/listings' },
+  { label: 'Find My Place',  to: '/find-my-place' },
+  { label: 'About',          to: '/about' },
+  { label: 'Contact',        to: '/contact' },
 ]
 
 export default function Navbar() {

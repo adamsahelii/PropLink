@@ -34,15 +34,28 @@ const CITY_DATA = [
 const LEBANON_CENTER = [33.87, 35.83]
 const LEBANON_ZOOM   = 8
 
-function makeIcon(isActive) {
-  const size = isActive ? 18 : 11
-  const bg   = isActive ? '#C9A24D' : 'rgba(201,162,77,0.52)'
-  const border = isActive
+// Base dot sizes scaled by activity level
+const ACTIVITY_BASE = { high: 13, medium: 11, low: 9, none: 8 }
+const ACTIVITY_FILL = {
+  high:   'rgba(232,125,74,0.82)',   // warm orange-gold for hot markets
+  medium: 'rgba(201,162,77,0.60)',
+  low:    'rgba(201,162,77,0.35)',
+  none:   'rgba(201,162,77,0.22)',
+}
+const ACTIVITY_BORDER = { high: 0.55, medium: 0.38, low: 0.22, none: 0.14 }
+
+function makeIcon(isSelected, activityLevel = 'none') {
+  const al     = activityLevel in ACTIVITY_BASE ? activityLevel : 'none'
+  const size   = isSelected ? 18 : ACTIVITY_BASE[al]
+  const bg     = isSelected ? '#C9A24D' : ACTIVITY_FILL[al]
+  const border = isSelected
     ? '2px solid rgba(255,255,255,0.9)'
-    : '1.5px solid rgba(255,255,255,0.35)'
-  const shadow = isActive
+    : `1.5px solid rgba(255,255,255,${ACTIVITY_BORDER[al]})`
+  const shadow = isSelected
     ? '0 0 0 5px rgba(201,162,77,0.22), 0 2px 10px rgba(0,0,0,0.55)'
-    : '0 1px 5px rgba(0,0,0,0.45)'
+    : al === 'high'
+      ? '0 1px 6px rgba(232,125,74,0.35)'
+      : '0 1px 4px rgba(0,0,0,0.38)'
 
   return L.divIcon({
     className: '',
@@ -54,8 +67,8 @@ function makeIcon(isActive) {
       box-shadow:${shadow};
       cursor:pointer;
     "></div>`,
-    iconSize:    [size, size],
-    iconAnchor:  [size / 2, size / 2],
+    iconSize:      [size, size],
+    iconAnchor:    [size / 2, size / 2],
     tooltipAnchor: [size / 2 + 3, 0],
   })
 }
@@ -121,10 +134,12 @@ function ZoomControls() {
   )
 }
 
-export default function LebanonMap({ city, onCitySelect, total, loading }) {
+export default function LebanonMap({ city, onCitySelect, total, loading, activityMap = {} }) {
   const icons = useMemo(
-    () => Object.fromEntries(CITY_DATA.map(c => [c.name, makeIcon(city === c.name)])),
-    [city],
+    () => Object.fromEntries(
+      CITY_DATA.map(c => [c.name, makeIcon(city === c.name, activityMap[c.name])])
+    ),
+    [city, activityMap],
   )
 
   return (
