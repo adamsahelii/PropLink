@@ -7,6 +7,8 @@ import FindMyPlacePage from './pages/FindMyPlacePage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ContactPage from './pages/ContactPage'
+import AboutPage from './pages/AboutPage'
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/listings"       element={<ListingsPage />} />
         <Route path="/listings/:slug" element={<PropertyDetailPage />} />
         <Route path="/find-my-place"  element={<FindMyPlacePage />} />
+        <Route path="/about"          element={<AboutPage />} />
+        <Route path="/contact"        element={<ContactPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/register"       element={<RegisterPage />} />
 
