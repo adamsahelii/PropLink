@@ -10,7 +10,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import PropertyCard from '../components/PropertyCard'
 import LebanonMap from '../components/LebanonMap'
-import MarketActivity from '../components/MarketActivity'
+import CityProfiles from '../components/CityProfiles'
 import useListings from '../hooks/useListings'
 import useMarketData from '../hooks/useMarketData'
 import { staggerContainer } from '../utils/motion'
@@ -298,7 +298,7 @@ export default function ListingsPage() {
     keyword, city, propertyType, purpose, price, sort, page,
   })
 
-  const { cityTotals, activityMap, insights, loading: marketLoading } = useMarketData()
+  const { cityTotals, loading: marketLoading } = useMarketData()
 
   const setFilter = (key, value) => {
     setSearchParams(prev => {
@@ -517,15 +517,13 @@ export default function ListingsPage() {
         onCitySelect={c => setFilter('city', c)}
         total={total}
         loading={loading}
-        activityMap={activityMap}
       />
 
-      {/* ── Market Activity ───────────────────────────────────────────────────── */}
-      <MarketActivity
+      {/* ── City profiles ─────────────────────────────────────────────────────── */}
+      <CityProfiles
         cityTotals={cityTotals}
-        activityMap={activityMap}
-        insights={insights}
         loading={marketLoading}
+        onCitySelect={c => setFilter('city', c)}
       />
 
       {/* ── Listings results ──────────────────────────────────────────────────── */}

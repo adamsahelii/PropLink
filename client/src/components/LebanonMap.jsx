@@ -34,28 +34,15 @@ const CITY_DATA = [
 const LEBANON_CENTER = [33.87, 35.83]
 const LEBANON_ZOOM   = 8
 
-// Base dot sizes scaled by activity level
-const ACTIVITY_BASE = { high: 13, medium: 11, low: 9, none: 8 }
-const ACTIVITY_FILL = {
-  high:   'rgba(232,125,74,0.82)',   // warm orange-gold for hot markets
-  medium: 'rgba(201,162,77,0.60)',
-  low:    'rgba(201,162,77,0.35)',
-  none:   'rgba(201,162,77,0.22)',
-}
-const ACTIVITY_BORDER = { high: 0.55, medium: 0.38, low: 0.22, none: 0.14 }
-
-function makeIcon(isSelected, activityLevel = 'none') {
-  const al     = activityLevel in ACTIVITY_BASE ? activityLevel : 'none'
-  const size   = isSelected ? 18 : ACTIVITY_BASE[al]
-  const bg     = isSelected ? '#C9A24D' : ACTIVITY_FILL[al]
+function makeIcon(isSelected) {
+  const size   = isSelected ? 18 : 9
+  const bg     = isSelected ? '#C9A24D' : 'rgba(201,162,77,0.5)'
   const border = isSelected
     ? '2px solid rgba(255,255,255,0.9)'
-    : `1.5px solid rgba(255,255,255,${ACTIVITY_BORDER[al]})`
+    : '1.5px solid rgba(255,255,255,0.55)'
   const shadow = isSelected
     ? '0 0 0 5px rgba(201,162,77,0.22), 0 2px 10px rgba(0,0,0,0.55)'
-    : al === 'high'
-      ? '0 1px 6px rgba(232,125,74,0.35)'
-      : '0 1px 4px rgba(0,0,0,0.38)'
+    : '0 1px 4px rgba(0,0,0,0.38)'
 
   return L.divIcon({
     className: '',
@@ -73,7 +60,7 @@ function makeIcon(isSelected, activityLevel = 'none') {
   })
 }
 
-const BTN_BASE = 'rgba(5, 20, 15, 0.84)'
+const BTN_BASE  = 'rgba(5, 20, 15, 0.84)'
 const BTN_HOVER = 'rgba(201, 162, 77, 0.15)'
 
 function ZoomBtn({ onClick, label, children }) {
@@ -86,21 +73,11 @@ function ZoomBtn({ onClick, label, children }) {
       onClick={onClick}
       aria-label={label}
       style={{
-        width: 36,
-        height: 36,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: 'none',
-        color: '#C9A24D',
-        fontSize: 22,
-        fontWeight: 300,
-        lineHeight: 1,
-        cursor: 'pointer',
-        outline: 'none',
-        userSelect: 'none',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        width: 36, height: 36,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        border: 'none', color: '#C9A24D', fontSize: 22, fontWeight: 300,
+        lineHeight: 1, cursor: 'pointer', outline: 'none', userSelect: 'none',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
       }}
     >
       {children}
@@ -110,23 +87,14 @@ function ZoomBtn({ onClick, label, children }) {
 
 function ZoomControls() {
   const map = useMap()
-
   return createPortal(
-    <div
-      style={{
-        position: 'absolute',
-        bottom: 52,
-        right: 16,
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        borderRadius: 10,
-        border: '1px solid rgba(201, 162, 77, 0.22)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
-      }}
-    >
-      <ZoomBtn onClick={() => map.zoomIn()} label="Zoom in">+</ZoomBtn>
+    <div style={{
+      position: 'absolute', bottom: 52, right: 16, zIndex: 1000,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      borderRadius: 10, border: '1px solid rgba(201, 162, 77, 0.22)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+    }}>
+      <ZoomBtn onClick={() => map.zoomIn()}  label="Zoom in">+</ZoomBtn>
       <div style={{ height: 1, backgroundColor: 'rgba(201, 162, 77, 0.16)' }} />
       <ZoomBtn onClick={() => map.zoomOut()} label="Zoom out">−</ZoomBtn>
     </div>,
@@ -134,12 +102,10 @@ function ZoomControls() {
   )
 }
 
-export default function LebanonMap({ city, onCitySelect, total, loading, activityMap = {} }) {
+export default function LebanonMap({ city, onCitySelect, total, loading }) {
   const icons = useMemo(
-    () => Object.fromEntries(
-      CITY_DATA.map(c => [c.name, makeIcon(city === c.name, activityMap[c.name])])
-    ),
-    [city, activityMap],
+    () => Object.fromEntries(CITY_DATA.map(c => [c.name, makeIcon(city === c.name)])),
+    [city],
   )
 
   return (
@@ -154,7 +120,6 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
           className="relative rounded-[32px] overflow-hidden shadow-2xl"
           style={{ height: 'clamp(300px, 50vw, 460px)' }}
         >
-          {/* Real Leaflet map — full bleed */}
           <MapContainer
             center={LEBANON_CENTER}
             zoom={LEBANON_ZOOM}
@@ -185,7 +150,7 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
             ))}
           </MapContainer>
 
-          {/* Info overlay — left side */}
+          {/* Info overlay */}
           <div
             className="absolute inset-y-0 left-0 flex items-center p-4 sm:p-6 pointer-events-none"
             style={{ zIndex: 1000 }}
@@ -200,7 +165,6 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
                 boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               }}
             >
-              {/* Label */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-px w-4 bg-gold/50" />
                 <p className="text-[9px] font-semibold tracking-[0.2em] text-gold/65 uppercase">
@@ -215,7 +179,6 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
                 Click a city marker to filter listings.
               </p>
 
-              {/* Live city stats */}
               <AnimatePresence mode="wait">
                 {city ? (
                   <motion.div
@@ -270,7 +233,6 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
             </div>
           </div>
 
-          {/* Attribution */}
           <div
             className="absolute bottom-1.5 right-2 text-[9px] text-white/18 select-none"
             style={{ zIndex: 1000 }}
@@ -279,7 +241,7 @@ export default function LebanonMap({ city, onCitySelect, total, loading, activit
           </div>
         </motion.div>
 
-        {/* Mobile city pills — shown below the map on small screens */}
+        {/* Mobile city pills */}
         <div className="mt-4 flex flex-wrap gap-2 md:hidden">
           {CITY_DATA.map(c => (
             <motion.button
