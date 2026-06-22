@@ -4,6 +4,8 @@ import { IoChevronBackOutline, IoChevronForwardOutline, IoLocationOutline, IoBed
 import { Link } from 'react-router-dom'
 import { fadeUp } from '../utils/motion'
 
+const EASE = [0.25, 0.46, 0.45, 0.94]
+
 const PROPERTIES = [
   {
     id: 1, slug: 'modern-penthouse-achrafieh',
@@ -42,7 +44,7 @@ const PROPERTIES = [
   },
 ]
 
-const N = PROPERTIES.length
+const N    = PROPERTIES.length
 const wrap = (i) => ((i % N) + N) % N
 
 function relPos(idx, active) {
@@ -53,11 +55,11 @@ function relPos(idx, active) {
 }
 
 export default function PropertyCarousel() {
-  const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
+  const [active,   setActive]   = useState(0)
+  const [paused,   setPaused]   = useState(false)
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640)
   const headerRef = useRef(null)
-  const isInView = useInView(headerRef, { once: true, margin: '-60px' })
+  const isInView  = useInView(headerRef, { once: true, margin: '-60px' })
 
   useEffect(() => {
     const update = () => setIsMobile(window.innerWidth < 640)
@@ -65,26 +67,21 @@ export default function PropertyCarousel() {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // Drag tracking
   const dragStartX = useRef(null)
   const hasDragged = useRef(false)
 
   const prev = useCallback(() => { setPaused(true); setActive(a => wrap(a - 1)) }, [])
   const next = useCallback(() => { setPaused(true); setActive(a => wrap(a + 1)) }, [])
 
-  // Auto-advance
   useEffect(() => {
     if (paused) return
     const t = setInterval(() => setActive(a => wrap(a + 1)), 4200)
     return () => clearInterval(t)
   }, [paused])
 
-  // Pointer drag handlers
-  const onPtrDown = (e) => { dragStartX.current = e.clientX; hasDragged.current = false }
-  const onPtrMove = (e) => {
-    if (dragStartX.current !== null && Math.abs(e.clientX - dragStartX.current) > 8) hasDragged.current = true
-  }
-  const onPtrUp = (e) => {
+  const onPtrDown   = (e) => { dragStartX.current = e.clientX; hasDragged.current = false }
+  const onPtrMove   = (e) => { if (dragStartX.current !== null && Math.abs(e.clientX - dragStartX.current) > 8) hasDragged.current = true }
+  const onPtrUp     = (e) => {
     if (hasDragged.current && dragStartX.current !== null) {
       const delta = e.clientX - dragStartX.current
       if (delta < -60) next()
@@ -95,24 +92,35 @@ export default function PropertyCarousel() {
   }
 
   return (
-    <section className="py-24 bg-ivory overflow-hidden">
-      {/* Header */}
-      <div ref={headerRef} className="max-w-7xl mx-auto px-6 text-center mb-16">
+    <section className="pt-20 pb-8 lg:pt-24 lg:pb-10 bg-ivory overflow-hidden">
+
+      {/* ── Section header ──────────────────────────────────────────────────── */}
+      <div ref={headerRef} className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 text-center mb-12">
         <motion.div
-          initial={{ opacity: 0, y: 36 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.7, ease: EASE }}
         >
-          <p className="section-label mb-3">Curated Selection</p>
-          <h2 className="section-title">Find Your Next Property</h2>
-          <div className="mt-4 w-12 h-0.5 bg-gold mx-auto" />
-          <p className="mt-5 text-gray-500 max-w-lg mx-auto text-sm leading-relaxed">
-            Luxury curated properties across Lebanon's most sought-after neighbourhoods.
+          {/* Eyebrow with flanking rules — matches Testimonials pattern */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="h-px w-8 bg-gold/45" />
+            <p className="section-label text-gold/80">Curated Selection</p>
+            <div className="h-px w-8 bg-gold/45" />
+          </div>
+
+          <h2
+            className="font-serif text-3xl md:text-4xl text-forest font-bold leading-tight mb-4"
+          >
+            Find Your Next Property
+          </h2>
+
+          <p className="text-charcoal/52 max-w-md mx-auto text-sm leading-relaxed">
+            Handpicked properties across Lebanon's most sought-after addresses.
           </p>
         </motion.div>
       </div>
 
-      {/* Carousel stage */}
+      {/* ── Carousel stage ────────────────────────────────────────────────────── */}
       <div
         className="relative h-[420px] sm:h-[460px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
         onMouseEnter={() => setPaused(true)}
@@ -140,7 +148,7 @@ export default function PropertyCarousel() {
               key={prop.id}
               initial={animProps}
               animate={animProps}
-              transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.55, ease: EASE }}
               style={{ position: 'absolute', zIndex: zIdx, willChange: 'transform' }}
               className="w-[260px] sm:w-[280px] md:w-[300px]"
               onClick={() => { if (!hasDragged.current && rel !== 0) { setActive(i); setPaused(true) } }}
@@ -151,8 +159,8 @@ export default function PropertyCarousel() {
         })}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-5 mt-10">
+      {/* ── Controls ──────────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-center gap-5 mt-9">
         <button
           onClick={prev}
           className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center text-forest hover:bg-forest hover:text-white hover:border-forest transition-all duration-200"
@@ -180,17 +188,36 @@ export default function PropertyCarousel() {
           <IoChevronForwardOutline className="w-5 h-5" />
         </button>
       </div>
+
+      {/* ── View All ──────────────────────────────────────────────────────────── */}
+      <div className="text-center mt-8">
+        <Link
+          to="/listings"
+          className="inline-flex items-center gap-2 text-forest/70 text-[12px] font-semibold tracking-[0.15em] uppercase hover:text-gold transition-colors duration-200 group"
+        >
+          Explore All Properties
+          <svg
+            className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
     </section>
   )
 }
+
+// ── Card ─────────────────────────────────────────────────────────────────────
 
 function CarouselCard({ prop, isCenter }) {
   const { title, location, rawPrice, suffix, purpose, type, beds, baths, img, slug } = prop
 
   return (
     <div
-      className={`bg-white rounded-3xl overflow-hidden transition-shadow duration-400 ${
-        isCenter ? 'shadow-2xl shadow-charcoal/15' : 'shadow-lg'
+      className={`bg-white rounded-3xl overflow-hidden transition-shadow duration-300 ${
+        isCenter ? 'shadow-2xl shadow-charcoal/12' : 'shadow-md'
       }`}
     >
       {/* Image */}
@@ -219,14 +246,16 @@ function CarouselCard({ prop, isCenter }) {
 
       {/* Body */}
       <div className="p-4">
-        <h3 className="font-serif text-[15px] font-semibold text-charcoal line-clamp-1 mb-1.5">{title}</h3>
+        <h3 className="font-serif text-[15px] font-semibold text-charcoal line-clamp-1 mb-1.5">
+          {title}
+        </h3>
 
-        <div className="flex items-center gap-1 text-gray-400 text-xs mb-3">
+        <div className="flex items-center gap-1 text-xs mb-3" style={{ color: 'rgba(30,30,30,0.45)' }}>
           <IoLocationOutline className="w-3.5 h-3.5 text-gold shrink-0" />
           <span>{location}</span>
         </div>
 
-        <div className="flex items-center gap-3 text-gray-400 text-[11px] mb-4">
+        <div className="flex items-center gap-3 text-[11px] mb-4" style={{ color: 'rgba(30,30,30,0.42)' }}>
           <div className="flex items-center gap-1"><IoBedOutline className="w-3.5 h-3.5" />{beds} Beds</div>
           <div className="flex items-center gap-1"><IoWaterOutline className="w-3.5 h-3.5" />{baths} Baths</div>
           <span className="ml-auto text-[10px] bg-forest/8 text-forest px-2 py-0.5 rounded-full font-medium">{type}</span>
@@ -235,7 +264,7 @@ function CarouselCard({ prop, isCenter }) {
         <Link
           to={`/listings/${slug}`}
           onClick={e => e.stopPropagation()}
-          className="flex items-center justify-between w-full text-forest text-[11px] font-semibold border-t border-gray-100 pt-3 group"
+          className="flex items-center justify-between w-full text-forest text-[11px] font-semibold border-t border-black/[0.05] pt-3 group"
         >
           <span className="tracking-wide">View Details</span>
           <span className="w-6 h-6 rounded-full bg-forest flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">

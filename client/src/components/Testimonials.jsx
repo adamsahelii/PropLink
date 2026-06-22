@@ -50,26 +50,9 @@ export default function Testimonials() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-44 md:py-56 px-4 overflow-hidden"
+      className="relative py-24 md:py-32 px-6 sm:px-10 lg:px-14 overflow-hidden"
       style={{ background: 'linear-gradient(160deg, #111111 0%, #181818 55%, #0d0d0d 100%)' }}
     >
-      {/* Bottom gradient — eases into the ivory CTA section below */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-36 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, transparent, #F7F3EA)' }}
-        aria-hidden="true"
-      />
-
-      {/* Subtle gold grid texture */}
-      <div
-        className="absolute inset-0 opacity-[0.022] pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(#C9A24D 1px, transparent 1px), linear-gradient(90deg, #C9A24D 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-        }}
-      />
-
       {/* Radial gold glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[450px] rounded-full pointer-events-none"
@@ -83,26 +66,26 @@ export default function Testimonials() {
       >
         <span
           className="font-serif font-bold text-white uppercase tracking-[0.18em] select-none leading-none"
-          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.044, whiteSpace: 'nowrap' }}
+          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.026, whiteSpace: 'nowrap' }}
         >
           WHAT OUR
         </span>
         <span
           className="font-serif font-bold text-white uppercase tracking-[0.18em] select-none leading-none"
-          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.028, whiteSpace: 'nowrap' }}
+          style={{ fontSize: 'clamp(52px, 10.5vw, 152px)', opacity: 0.016, whiteSpace: 'nowrap' }}
         >
           CLIENTS SAY
         </span>
       </motion.div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, y: 36 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="text-center mb-20"
+          className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-8 bg-gold/50" />

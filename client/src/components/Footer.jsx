@@ -49,18 +49,8 @@ export default function Footer() {
         background: 'linear-gradient(160deg, #07201A 0%, #0a2d22 40%, #141414 100%)',
       }}
     >
-      {/* Subtle noise texture overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.018] pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(#C9A24D 1px, transparent 1px), linear-gradient(90deg, #C9A24D 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-        }}
-      />
-
       {/* ── Top hero row ── */}
-      <div className="relative z-10 border-b border-white/6 py-16 px-6 lg:px-10">
+      <div className="relative z-10 border-b border-white/[0.06] py-14 px-6 sm:px-10 lg:px-14">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
 
           {/* Logo + brand */}
@@ -105,7 +95,7 @@ export default function Footer() {
       </div>
 
       {/* ── Nav columns + socials ── */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
         {NAV_COLS.map(({ heading, links }) => (
           <div key={heading}>
             <h4 className="text-white/90 text-[10px] font-semibold tracking-[0.18em] uppercase mb-5">
@@ -117,7 +107,7 @@ export default function Footer() {
                   <motion.div whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 400, damping: 22 }}>
                     <Link
                       to={to}
-                      className="text-white/40 hover:text-gold text-sm transition-colors duration-200 inline-flex items-center gap-1.5 group"
+                      className="text-white/50 hover:text-gold text-sm transition-colors duration-200 inline-flex items-center gap-1.5 group"
                     >
                       <IoArrowForward className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-gold" />
                       {label}
@@ -140,7 +130,7 @@ export default function Footer() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className="flex items-center gap-3 text-white/40 hover:text-gold transition-colors duration-200 group"
+                className="flex items-center gap-3 text-white/50 hover:text-gold transition-colors duration-200 group"
                 whileHover={{ x: 4 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               >
@@ -153,8 +143,8 @@ export default function Footer() {
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="relative z-10 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="relative z-10 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-white/25 text-xs">
             © {new Date().getFullYear()} PropLink. All rights reserved.
           </p>
