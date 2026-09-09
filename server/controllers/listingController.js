@@ -3,6 +3,8 @@ const Analytics = require('../models/Analytics')
 const AppError = require('../utils/AppError')
 const asyncHandler = require('../utils/asyncHandler')
 const { buildListingFilter, buildSortOption, getPagination } = require('../utils/queryHelper')
+const { pickListingFields } = require('../utils/listingFields')
+const { destroyImages } = require('./uploadController')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -31,23 +33,13 @@ const canMutate = (listing, user) =>
 // from the request body, so a user cannot impersonate another owner.
 
 exports.createListing = asyncHandler(async (req, res, next) => {
-  const {
-    title, description, propertyType, purpose,
-    price, location, size, bedrooms, bathrooms,
-  } = req.body
+  const fields = pickListingFields(req.body, { isAdmin: req.user.role === 'admin' })
 
   const listing = await Listing.create({
-    title,
-    description,
-    propertyType,
-    purpose,
-    price,
-    location,
-    size,
-    bedrooms,
-    bathrooms,
+    ...fields,
     ownerId: req.user._id,      // always from auth, never from body
     approvalStatus: 'pending',  // every listing starts in the review queue
+    status: fields.status || 'available',
   })
 
   res.status(201).json({ success: true, listing })
@@ -158,8 +150,17 @@ exports.updateListing = asyncHandler(async (req, res, next) => {
     return next(new AppError('You are not authorised to update this listing.', 403))
   }
 
-  // Strip fields that must never be changed through this endpoint
-  const { ownerId, isDeleted, deletedAt, approvalStatus, rejectionReason, ...updates } = req.body
+  // Only allowlisted fields can be written; ownership, approval, and
+  // soft-delete state are unreachable from a form submission.
+  const updates = pickListingFields(req.body, { isAdmin: req.user.role === 'admin' })
+
+  // Photos dropped by the owner become orphans in Cloudinary — collect them
+  // before overwriting the array so they can be cleaned up after the save.
+  const removedPublicIds = updates.images
+    ? listing.images
+        .map((img) => img.publicId)
+        .filter((id) => !updates.images.some((img) => img.publicId === id))
+    : []
 
   Object.assign(listing, updates)
 
@@ -170,6 +171,30 @@ exports.updateListing = asyncHandler(async (req, res, next) => {
   }
 
   await listing.save() // triggers slug pre-save hook if title changed
+
+  // Fire-and-forget: a failed cleanup must never fail the owner's edit
+  destroyImages(removedPublicIds).catch(() => {})
+
+  res.status(200).json({ success: true, listing })
+})
+
+// ── GET /api/listings/my/:id ──────────────────────────────────────────────────
+// Loads one listing for its owner (or an admin) regardless of approval status.
+// The public /:slug route only ever returns approved listings, so the edit
+// form cannot rely on it — a pending or rejected listing would 404 there.
+
+exports.getMyListingById = asyncHandler(async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id).lean()
+
+  if (!listing || listing.isDeleted) {
+    return next(new AppError('Listing not found.', 404))
+  }
+
+  const isOwner = listing.ownerId.toString() === req.user._id.toString()
+  if (req.user.role !== 'admin' && !isOwner) {
+    // Same 404 as a missing listing — don't confirm that someone else's id exists
+    return next(new AppError('Listing not found.', 404))
+  }
 
   res.status(200).json({ success: true, listing })
 })

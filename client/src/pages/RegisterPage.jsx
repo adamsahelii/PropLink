@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   IoPersonOutline, IoMailOutline, IoLockClosedOutline,
@@ -30,6 +30,12 @@ const ROLES = [
 export default function RegisterPage() {
   const { user, register } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Carried over from ProtectedRoute (via the login page) so signing up still
+  // lands the visitor on the page they originally asked for
+  const fromState = location.state?.from
+  const from = fromState ? `${fromState.pathname}${fromState.search ?? ''}` : '/'
 
   const [form, setForm] = useState({
     name:        '',
@@ -45,8 +51,8 @@ export default function RegisterPage() {
   const [errorMsg,   setErrorMsg]   = useState('')
   const [pwdMismatch, setPwdMismatch] = useState(false)
 
-  // Already logged in — bounce to home
-  useEffect(() => { if (user) navigate('/', { replace: true }) }, [user])
+  // Already logged in — bounce to the intended destination
+  useEffect(() => { if (user) navigate(from, { replace: true }) }, [user])
 
   function setField(key, value) {
     setForm(f => ({ ...f, [key]: value }))
@@ -64,7 +70,7 @@ export default function RegisterPage() {
 
     const result = await register(payload)
     if (result.success) {
-      navigate('/', { replace: true })
+      navigate(from, { replace: true })
     } else {
       setStatus('error')
       setErrorMsg(result.error)
@@ -287,7 +293,11 @@ export default function RegisterPage() {
           {/* Footer */}
           <p className="text-center text-sm text-charcoal/45 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-gold font-medium hover:text-gold-dark transition-colors">
+            <Link
+              to="/login"
+              state={fromState ? { from: fromState } : undefined}
+              className="text-gold font-medium hover:text-gold-dark transition-colors"
+            >
               Sign in
             </Link>
           </p>

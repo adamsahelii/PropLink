@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline } from 'react-icons/io5'
+import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline } from 'react-icons/io5'
 import LogoMark from './LogoMark'
 import { useAuth } from '../context/AuthContext'
 
@@ -72,6 +72,8 @@ export default function Navbar() {
   const onDark = !scrolled
   const badge  = user ? ROLE_BADGE[user.role] : null
   const firstName = user?.name?.split(' ')[0] ?? ''
+  // Property management is owner/admin territory
+  const canManageListings = user?.role === 'owner' || user?.role === 'admin'
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-4">
@@ -163,6 +165,18 @@ export default function Navbar() {
                       )}
                     </div>
 
+                    {/* Owner Dashboard */}
+                    {canManageListings && (
+                      <Link
+                        to="/my-listings"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                      >
+                        <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
+                        Owner Dashboard
+                      </Link>
+                    )}
+
                     {/* Logout */}
                     <button
                       onClick={handleLogout}
@@ -246,6 +260,15 @@ export default function Navbar() {
                         </span>
                       )}
                     </div>
+                    {canManageListings && (
+                      <Link
+                        to="/my-listings"
+                        className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                      >
+                        <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
+                        Owner Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2.5 text-sm font-medium text-charcoal/55 hover:text-red-500 transition-colors duration-150 px-1"

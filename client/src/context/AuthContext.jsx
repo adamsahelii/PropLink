@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 
-const TOKEN_KEY = 'pl_token'
+// Exported so the API helper can attach the same token without a hook
+export const TOKEN_KEY = 'pl_token'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {

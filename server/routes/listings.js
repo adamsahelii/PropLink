@@ -5,6 +5,7 @@ const {
   createListing,
   getAllListings,
   getMyListings,
+  getMyListingById,
   getPendingListings,
   getListingBySlug,
   updateListing,
@@ -14,6 +15,7 @@ const {
 } = require('../controllers/listingController')
 
 const { protect, authorize } = require('../middleware/auth')
+const { validate, rules } = require('../middleware/validate')
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
@@ -24,6 +26,8 @@ router.get('/', getAllListings)
 // requests to /my and /admin/pending would be swallowed as slug values.
 
 router.get('/my', protect, authorize('owner', 'admin'), getMyListings)
+// Two segments, so it never collides with the single-segment /:slug route below
+router.get('/my/:id', protect, authorize('owner', 'admin'), getMyListingById)
 router.get('/admin/pending', protect, authorize('admin'), getPendingListings)
 
 // ── Public — dynamic by slug (after static routes) ───────────────────────────
@@ -32,7 +36,7 @@ router.get('/:slug', getListingBySlug)
 
 // ── Authenticated — create ────────────────────────────────────────────────────
 
-router.post('/', protect, authorize('owner', 'admin'), createListing)
+router.post('/', protect, authorize('owner', 'admin'), validate(rules.createListing), createListing)
 
 // ── Authenticated — mutate by MongoDB _id ─────────────────────────────────────
 // Ownership check happens inside each controller (needs the document anyway).

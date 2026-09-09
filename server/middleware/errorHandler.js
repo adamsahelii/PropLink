@@ -56,19 +56,23 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500
   err.status = err.status || 'error'
 
-  if (process.env.NODE_ENV === 'development') {
-    return sendDev(err, res)
-  }
-
   // Clone so we don't mutate the original error object
   let error = Object.assign(Object.create(Object.getPrototypeOf(err)), err)
   error.message = err.message
+  error.stack = err.stack
 
+  // Normalise BEFORE choosing a response format. Running this only in
+  // production made development answer a plain validation failure with 500,
+  // which hides genuine server errors and misleads the client.
   if (error.name === 'CastError') error = handleCastError(error)
   if (error.code === 11000) error = handleDuplicateKey(error)
   if (error.name === 'ValidationError') error = handleValidationError(error)
   if (error.name === 'JsonWebTokenError') error = handleJWTError()
   if (error.name === 'TokenExpiredError') error = handleJWTExpiredError()
+
+  if (process.env.NODE_ENV === 'development') {
+    return sendDev(error, res)
+  }
 
   sendProd(error, res)
 }

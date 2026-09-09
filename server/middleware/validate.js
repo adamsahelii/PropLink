@@ -34,6 +34,28 @@ const rules = {
     if (!password) return 'Password is required.'
     return null
   },
+
+  // Mirrors the required fields and enums in models/Listing.js. Catching these
+  // here returns a clean 400 instead of letting a Mongoose ValidationError
+  // surface, and keeps the message identical in development and production.
+  createListing: ({ title, description, propertyType, purpose, price, location }) => {
+    if (!title || !title.trim()) return 'Title is required.'
+    if (title.trim().length > 200) return 'Title cannot exceed 200 characters.'
+    if (!description || !description.trim()) return 'Description is required.'
+    if (description.trim().length > 5000) return 'Description cannot exceed 5000 characters.'
+
+    if (!['apartment', 'land'].includes(propertyType)) return 'Property type must be apartment or land.'
+    if (!['rent', 'sale'].includes(purpose)) return 'Purpose must be rent or sale.'
+
+    if (price === undefined || price === null || price === '') return 'Price is required.'
+    const numericPrice = Number(price)
+    if (!Number.isFinite(numericPrice)) return 'Price must be a number.'
+    if (numericPrice < 0) return 'Price must be a positive number.'
+
+    if (!location || !location.city || !String(location.city).trim()) return 'City is required.'
+
+    return null
+  },
 }
 
 module.exports = { validate, rules }
