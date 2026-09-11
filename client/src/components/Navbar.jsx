@@ -36,6 +36,16 @@ export default function Navbar() {
   const navigate   = useNavigate()
   const location   = useLocation()
 
+  // Insert "Add Residence" right after "Find My Place" for owners/admins only
+  const isOwnerOrAdmin = user?.role === 'owner' || user?.role === 'admin'
+  const navLinks = isOwnerOrAdmin
+    ? NAV_LINKS.flatMap(link =>
+        link.to === '/find-my-place'
+          ? [link, { label: 'Add Residence', to: '/add-residence' }, { label: 'My Properties', to: '/my-properties' }]
+          : [link]
+      )
+    : NAV_LINKS
+
   const [scrolled,     setScrolled]     = useState(false)
   const [menuOpen,     setMenuOpen]     = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -98,7 +108,7 @@ export default function Navbar() {
 
         {/* ── Desktop nav links ─────────────────────────────────────── */}
         <nav className="hidden md:flex items-center gap-7">
-          {NAV_LINKS.map(({ label, to }) => (
+          {navLinks.map(({ label, to }) => (
             <Link
               key={to}
               to={to}
@@ -217,7 +227,7 @@ export default function Navbar() {
           >
             <div className="px-6 py-5 flex flex-col gap-4">
               {/* Nav links */}
-              {NAV_LINKS.map(({ label, to }) => (
+              {navLinks.map(({ label, to }) => (
                 <Link
                   key={to}
                   to={to}
@@ -226,6 +236,7 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+
 
               {/* Auth section */}
               <div className="border-t border-black/5 pt-4">

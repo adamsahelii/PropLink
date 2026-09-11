@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
+import { useAuth } from '../context/AuthContext'
 import 'leaflet/dist/leaflet.css'
 import {
   IoBedOutline, IoWaterOutline, IoLocationOutline, IoCallOutline,
@@ -45,7 +46,6 @@ const LIFESTYLE_LABELS = {
 }
 
 const JOURNEY_STEPS = ['Arrival', 'Area', 'Property', 'Highlights', 'Contact']
-
 const dotIcon = L.divIcon({
   className: '',
   html: `<div style="width:14px;height:14px;background:#C9A24D;border:2.5px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 5px rgba(201,162,77,0.22),0 2px 10px rgba(0,0,0,0.4)"></div>`,
@@ -134,6 +134,7 @@ function JourneyNav({ activeSection, onJump }) {
 export default function PropertyDetailPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { token } = useAuth() 
   const { listing, loading, error } = usePropertyDetail(slug)
 
   const [activeSection, setActiveSection]   = useState(0)
@@ -168,9 +169,12 @@ export default function PropertyDetailPage() {
     setFormState('submitting')
     try {
       const res = await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId: listing._id, message: form.message }),
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ listingId: listing._id, message: form.message }),
       })
       if (res.status === 401) { setFormState('auth'); return }
       const data = await res.json()

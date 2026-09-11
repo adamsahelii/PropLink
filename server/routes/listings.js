@@ -14,6 +14,7 @@ const {
 } = require('../controllers/listingController')
 
 const { protect, authorize } = require('../middleware/auth')
+const upload = require('../middleware/upload')
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ router.get('/:slug', getListingBySlug)
 
 // ── Authenticated — create ────────────────────────────────────────────────────
 
-router.post('/', protect, authorize('owner', 'admin'), createListing)
+router.post('/', protect, authorize('owner', 'admin'), upload.array('images', 10), createListing)
 
 // ── Authenticated — mutate by MongoDB _id ─────────────────────────────────────
 // Ownership check happens inside each controller (needs the document anyway).

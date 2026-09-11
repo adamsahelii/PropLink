@@ -100,7 +100,7 @@ const listingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: { values: ['available', 'pending', 'rented', 'sold'], message: 'Invalid listing status' },
+      enum: { values: ['available', 'pending', 'rented', 'sold', 'inactive'], message: 'Invalid listing status' },
       default: 'available',
     },
     approvalStatus: {
