@@ -12,7 +12,12 @@ export default function LoginPage() {
   const { user, login } = useAuth()
   const navigate  = useNavigate()
   const location  = useLocation()
-  const from      = location.state?.from?.pathname ?? '/'
+  // Where ProtectedRoute bounced the visitor from — query string included,
+  // so a deep link like /my-listings?page=2 survives the round trip
+  const fromState = location.state?.from
+  const from      = fromState
+    ? `${fromState.pathname}${fromState.search ?? ''}`
+    : '/'
 
   const [form,     setForm]     = useState({ email: '', password: '' })
   const [showPwd,  setShowPwd]  = useState(false)
@@ -139,7 +144,11 @@ export default function LoginPage() {
           {/* Footer link */}
           <p className="text-center text-sm text-charcoal/45 mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-gold font-medium hover:text-gold-dark transition-colors">
+            <Link
+              to="/register"
+              state={fromState ? { from: fromState } : undefined}
+              className="text-gold font-medium hover:text-gold-dark transition-colors"
+            >
               Create one
             </Link>
           </p>
