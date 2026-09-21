@@ -9,8 +9,8 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
-import MyListingsPage from './pages/MyListingsPage'
-import ListingFormPage from './pages/ListingFormPage'
+import AddResidencePage from './pages/AddResidencePage' 
+import MyPropertiesPage from './pages/MyPropertiesPage'
 
 function App() {
   return (
@@ -32,11 +32,10 @@ function App() {
         </Route>
 
         {/* ── Protected — owner or admin only ────────────────────── */}
-        <Route element={<ProtectedRoute roles={['owner', 'admin']} />}>
-          <Route path="/my-listings"          element={<MyListingsPage />} />
-          <Route path="/my-listings/new"      element={<ListingFormPage mode="create" />} />
-          <Route path="/my-listings/:id/edit" element={<ListingFormPage mode="edit" />} />
-        </Route>
+<Route element={<ProtectedRoute roles={['owner', 'admin']} />}>
+  <Route path="/add-residence" element={<AddResidencePage />} />
+  <Route path="/my-properties" element={<MyPropertiesPage />} />
+</Route>
 
         {/* ── Protected — admin only ──────────────────────────────── */}
         <Route element={<ProtectedRoute roles={['admin']} />}>

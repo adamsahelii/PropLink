@@ -33,13 +33,36 @@ const canMutate = (listing, user) =>
 // from the request body, so a user cannot impersonate another owner.
 
 exports.createListing = asyncHandler(async (req, res, next) => {
-  const fields = pickListingFields(req.body, { isAdmin: req.user.role === 'admin' })
+  const {
+    title, description, propertyType, purpose,
+    price, size, bedrooms, bathrooms,
+    city, area, address,
+  } = req.body
+
+  // multer-storage-cloudinary: file.path = secure URL, file.filename = public_id
+  // Only real Cloudinary uploads have a URL (f.path). In-memory fallback
+  // files have no path, so we skip them and save the listing without photos.
+  const images = (req.files || [])
+    .filter(f => f.path && f.filename)
+    .map(f => ({ url: f.path, publicId: f.filename }))
 
   const listing = await Listing.create({
-    ...fields,
+    title,
+    description,
+    propertyType,
+    purpose, 
+    price,
+    location: {
+      city,
+      area:    area    || undefined,
+      address: address || undefined,
+    },
+    size:      size      || undefined,
+    bedrooms:  bedrooms  || undefined,
+    bathrooms: bathrooms || undefined,
+    images,
     ownerId: req.user._id,      // always from auth, never from body
-    approvalStatus: 'pending',  // every listing starts in the review queue
-    status: fields.status || 'available',
+    approvalStatus: 'approved',  // every listing starts in the review queue
   })
 
   res.status(201).json({ success: true, listing })
@@ -51,7 +74,7 @@ exports.createListing = asyncHandler(async (req, res, next) => {
 //           minPrice, maxPrice, sort, page, limit.
 
 exports.getAllListings = asyncHandler(async (req, res, next) => {
-  const baseFilter = { isDeleted: false, approvalStatus: 'approved' }
+  const baseFilter = { isDeleted: false, approvalStatus: 'approved', status: { $ne: 'inactive' } }
   const filter = buildListingFilter(req.query, baseFilter)
   const sort   = buildSortOption(req.query.sort)
   const { page, limit, skip } = getPagination(req.query.page, req.query.limit)
@@ -164,11 +187,7 @@ exports.updateListing = asyncHandler(async (req, res, next) => {
 
   Object.assign(listing, updates)
 
-  // Owner edits send the listing back through the review queue
-  if (req.user.role !== 'admin') {
-    listing.approvalStatus = 'pending'
-    listing.rejectionReason = ''
-  }
+
 
   await listing.save() // triggers slug pre-save hook if title changed
 
