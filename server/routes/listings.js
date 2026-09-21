@@ -5,6 +5,7 @@ const {
   createListing,
   getAllListings,
   getMyListings,
+  getMyListingById,
   getPendingListings,
   getListingBySlug,
   updateListing,
@@ -25,6 +26,8 @@ router.get('/', getAllListings)
 // requests to /my and /admin/pending would be swallowed as slug values.
 
 router.get('/my', protect, authorize('owner', 'admin'), getMyListings)
+// Two segments, so it never collides with the single-segment /:slug route below
+router.get('/my/:id', protect, authorize('owner', 'admin'), getMyListingById)
 router.get('/admin/pending', protect, authorize('admin'), getPendingListings)
 
 // ── Public — dynamic by slug (after static routes) ───────────────────────────
