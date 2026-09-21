@@ -62,7 +62,7 @@ exports.createListing = asyncHandler(async (req, res, next) => {
     bathrooms: bathrooms || undefined,
     images,
     ownerId: req.user._id,      // always from auth, never from body
-    approvalStatus: 'approved',  // every listing starts in the review queue
+    approvalStatus: 'pending',  // every listing starts in the review queue
   })
 
   res.status(201).json({ success: true, listing })

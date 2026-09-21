@@ -11,7 +11,7 @@ import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
 import AddResidencePage from './pages/AddResidencePage' 
 import MyPropertiesPage from './pages/MyPropertiesPage'
-
+import AdminPage from './pages/AdminPage'
 function App() {
   return (
     <AuthProvider>
@@ -35,6 +35,10 @@ function App() {
 <Route element={<ProtectedRoute roles={['owner', 'admin']} />}>
   <Route path="/add-residence" element={<AddResidencePage />} />
   <Route path="/my-properties" element={<MyPropertiesPage />} />
+</Route>
+{/* ── Protected — admin only ──────────────────────────────── */}
+<Route element={<ProtectedRoute roles={['admin']} />}>
+  <Route path="/admin" element={<AdminPage />} />
 </Route>
 
         {/* ── Protected — admin only ──────────────────────────────── */}

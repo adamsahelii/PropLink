@@ -31,6 +31,17 @@ const STATUS_LABELS = {
   rented:   'Rented',
   sold:     'Sold',
 }
+const APPROVAL_STYLES = {
+  pending:  'bg-amber-100 text-amber-700',
+  approved: 'bg-forest/15 text-forest',
+  rejected: 'bg-red-100 text-red-600',
+}
+
+const APPROVAL_LABELS = {
+  pending:  'Pending Review',
+  approved: 'Approved',
+  rejected: 'Rejected',
+}
 
 const TABS = [
   { key: 'all',      label: 'All' },
@@ -232,11 +243,27 @@ export default function MyPropertiesPage() {
                 return (
                   <div key={listing._id} className="relative">
                     <span className={`absolute z-10 top-4 left-1/2 -translate-x-1/2 text-[10px] font-semibold
-                                      uppercase tracking-widest px-3 py-1.5 rounded-full shadow ${STATUS_STYLES[s]}`}>
-                      {STATUS_LABELS[s]}
-                    </span>
+                  uppercase tracking-widest px-3 py-1.5 rounded-full shadow ${STATUS_STYLES[s]}`}>
+  {STATUS_LABELS[s]}
+</span>
 
-                    <PropertyCard property={listing} index={i} />
+<PropertyCard property={listing} index={i} />
+
+{/* Approval status — separate from availability */}
+{listing.approvalStatus && (
+  <div className="mt-3 flex justify-center">
+    <span className={`text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full ${APPROVAL_STYLES[listing.approvalStatus]}`}>
+      {APPROVAL_LABELS[listing.approvalStatus]}
+    </span>
+  </div>
+)}
+
+{/* Rejection reason — only shown when rejected */}
+{listing.approvalStatus === 'rejected' && listing.rejectionReason && (
+  <p className="mt-2 text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 leading-relaxed">
+    <span className="font-semibold">Rejected:</span> {listing.rejectionReason}
+  </p>
+)}
 
                     {/* Owner actions */}
                     <div className="flex gap-2 mt-3">

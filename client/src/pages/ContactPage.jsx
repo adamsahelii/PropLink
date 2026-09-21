@@ -5,6 +5,7 @@ import {
   IoArrowForwardOutline,
 } from 'react-icons/io5'
 import Navbar from '../components/Navbar'
+import { useAuth } from '../context/AuthContext'
 
 const EASE = [0.25, 0.46, 0.45, 0.94]
 
@@ -45,8 +46,9 @@ function Field({ label, children }) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function ContactPage() {
+  const { token } = useAuth()
   const [form,       setForm]       = useState(EMPTY_FORM)
-  const [formStatus, setFormStatus] = useState('idle') // idle | submitting | success
+  const [formStatus, setFormStatus] = useState('idle') // idle | submitting | success | error
 
   function setField(key, value) {
     setForm(f => ({ ...f, [key]: value }))
@@ -55,9 +57,26 @@ export default function ContactPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setFormStatus('submitting')
-    // No backend contact route — clean UX delay before success state
-    await new Promise(r => setTimeout(r, 900))
-    setFormStatus('success')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          name:    `${form.firstName} ${form.lastName}`.trim(),
+          email:   form.email,
+          phone:   form.phone,
+          subject: form.subject,
+          message: form.message,
+        }),
+      })
+      const data = await res.json()
+      setFormStatus(data.success ? 'success' : 'error')
+    } catch {
+      setFormStatus('error')
+    }
   }
 
   function resetForm() {
@@ -153,6 +172,11 @@ export default function ContactPage() {
                   transition={{ delay: 0.18, duration: 0.4, ease: EASE }}
                   className="space-y-5"
                 >
+                                    {formStatus === 'error' && (
+                    <p className="text-red-500 text-xs">
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
                   {/* Row 1: Name */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Field label="First Name">
