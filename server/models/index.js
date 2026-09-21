@@ -4,4 +4,5 @@ module.exports = {
   Favorite: require('./Favorite'),
   Inquiry: require('./Inquiry'),
   Analytics: require('./Analytics'),
+  ContactMessage: require('./ContactMessage'),
 }

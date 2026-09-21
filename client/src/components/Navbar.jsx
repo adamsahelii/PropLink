@@ -32,19 +32,47 @@ function UserInitial({ name, size = 30 }) {
 }
 
 export default function Navbar() {
-  const { user, loading, logout } = useAuth()
+  const { user, loading, logout, token } = useAuth()
   const navigate   = useNavigate()
   const location   = useLocation()
 
+  // Live pending-review count for the admin badge
+  const [pendingCount, setPendingCount] = useState(0)
+  useEffect(() => {
+    if (user?.role !== 'admin') { setPendingCount(0); return }
+    async function loadCount() {
+      try {
+        const res = await fetch('/api/listings/admin/pending', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await res.json()
+        if (data.success) setPendingCount(data.total)
+      } catch { /* silent — count must never break the navbar */ }
+    }
+    loadCount()
+    window.addEventListener('pending-updated', loadCount)
+    window.addEventListener('focus', loadCount)
+    return () => {
+      window.removeEventListener('pending-updated', loadCount)
+      window.removeEventListener('focus', loadCount)
+    }
+  }, [user, token])
+
   // Insert "Add Residence" right after "Find My Place" for owners/admins only
-  const isOwnerOrAdmin = user?.role === 'owner' || user?.role === 'admin'
-  const navLinks = isOwnerOrAdmin
-    ? NAV_LINKS.flatMap(link =>
-        link.to === '/find-my-place'
-          ? [link, { label: 'Add Residence', to: '/add-residence' }, { label: 'My Properties', to: '/my-properties' }]
-          : [link]
-      )
-    : NAV_LINKS
+const isOwnerOrAdmin = user?.role === 'owner' || user?.role === 'admin'
+const isAdmin = user?.role === 'admin'
+let navLinks = isOwnerOrAdmin
+  ? NAV_LINKS.flatMap(link =>
+      link.to === '/find-my-place'
+        ? [link, { label: 'Add Residence', to: '/add-residence' }, { label: 'My Properties', to: '/my-properties' }]
+        : [link]
+    )
+  : NAV_LINKS
+
+// Admins get the review queue link at the end
+if (isAdmin) {
+  navLinks = [...navLinks, { label: 'Review Queue', to: '/admin' }]
+}
 
   const [scrolled,     setScrolled]     = useState(false)
   const [menuOpen,     setMenuOpen]     = useState(false)
@@ -119,6 +147,11 @@ export default function Navbar() {
               }`}
             >
               {label}
+              {to === '/admin' && pendingCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white align-middle">
+                  {pendingCount}
+                </span>
+              )}
               <span className={`absolute -bottom-0.5 left-0 h-px bg-gold transition-all duration-300 ${
                 location.pathname === to ? 'w-full' : 'w-0 group-hover:w-full'
               }`} />

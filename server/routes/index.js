@@ -11,6 +11,7 @@ router.use('/listings', require('./listings'))
 router.use('/favorites', require('./favorites'))
 router.use('/inquiries', require('./inquiries'))
 router.use('/example', require('./example'))
+router.use('/contact', require('./contact'))
 
 // Future route mounts:
 // router.use('/users', require('./users'))
