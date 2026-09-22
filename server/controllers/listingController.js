@@ -39,12 +39,12 @@ exports.createListing = asyncHandler(async (req, res, next) => {
     city, area, address,
   } = req.body
 
-  // multer-storage-cloudinary: file.path = secure URL, file.filename = public_id
-  // Only real Cloudinary uploads have a URL (f.path). In-memory fallback
-  // files have no path, so we skip them and save the listing without photos.
-  const images = (req.files || [])
-    .filter(f => f.path && f.filename)
-    .map(f => ({ url: f.path, publicId: f.filename }))
+  // Files arrive in memory as Buffers. Convert each to a base64 data URI and
+  // store it directly in the document — no external host, survives redeploys.
+  const images = (req.files || []).map(f => ({
+    url: `data:${f.mimetype};base64,${f.buffer.toString('base64')}`,
+    publicId: `${Date.now()}-${f.originalname}`, // label only; kept for schema shape
+  }))
 
   const listing = await Listing.create({
     title,

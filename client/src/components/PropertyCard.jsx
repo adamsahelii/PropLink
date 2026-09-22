@@ -1,20 +1,17 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { fadeUp } from '../utils/motion'
-import { IoBedOutline, IoWaterOutline, IoLocationOutline } from 'react-icons/io5'
-
-const CARD_IMAGES = [
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=75',
-  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=75',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=75',
-]
+import { IoBedOutline, IoWaterOutline, IoLocationOutline, IoImageOutline } from 'react-icons/io5'
+import noPhoto from '../assets/no-photo.jpg'
+// const CARD_IMAGES = [
+//   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=75',
+//   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=75',
+//   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=75',
+// ]
 
 export default function PropertyCard({ property, index = 0 }) {
-  const { title, location, price, propertyType, purpose, bedrooms, bathrooms, size, images, slug } = property
-  const primarySrc  = images?.[0]?.url
-  const fallbackSrc = CARD_IMAGES[index % CARD_IMAGES.length]
-  const imgSrc      = primarySrc || fallbackSrc
-
+    const { title, location, price, propertyType, purpose, bedrooms, bathrooms, size, images, slug, status } = property
+  const imgSrc = images?.[0]?.url || noPhoto
   return (
     <motion.div
       variants={fadeUp}
@@ -30,10 +27,7 @@ export default function PropertyCard({ property, index = 0 }) {
           className="w-full h-full object-cover"
           whileHover={{ scale: 1.08 }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-          onError={e => {
-            e.currentTarget.onerror = null
-            e.currentTarget.src = fallbackSrc
-          }}
+          onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = noPhoto }}
         />
 
         {/* Dark gradient bottom */}

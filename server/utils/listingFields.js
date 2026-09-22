@@ -12,11 +12,11 @@ const EDITABLE_FIELDS = [
   'images', 'status',
 ]
 
-const ALL_STATUSES = ['available', 'pending', 'rented', 'sold']
+const ALL_STATUSES = ['available', 'pending', 'rented', 'sold', 'inactive']
 
 // Owners may mark a listing sold/rented, but 'pending' is the review queue's
 // own value and must not be settable from a form.
-const OWNER_SETTABLE_STATUSES = ['available', 'rented', 'sold']
+const OWNER_SETTABLE_STATUSES = ['available', 'inactive', 'rented', 'sold']
 
 const MAX_IMAGES = 10
 

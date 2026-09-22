@@ -1,26 +1,22 @@
 const multer = require('multer')
-const { CloudinaryStorage } = require('multer-storage-cloudinary')
-const cloudinary = require('../config/cloudinary')
 
-// Only use Cloudinary storage if credentials exist; otherwise keep files
-// in memory and let the controller skip them. This lets listings be created
-// without photos while Cloudinary isn't set up yet.
-const hasCloudinary = Boolean(process.env.CLOUDINARY_CLOUD_NAME)
+// Files are held in memory as Buffers, then converted to base64 data URIs
+// in the controller and stored directly in MongoDB. No external host, no disk.
+const storage = multer.memoryStorage()
 
-const storage = hasCloudinary
-  ? new CloudinaryStorage({
-      cloudinary,
-      params: {
-        folder: 'proplink/listings',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-        transformation: [{ width: 1600, height: 1200, crop: 'limit' }],
-      },
-    })
-  : multer.memoryStorage() // fallback — files held in memory, then ignored
+// Only accept real image types — rejects anything else before it hits memory.
+const fileFilter = (req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (allowed.includes(file.mimetype)) cb(null, true)
+  else cb(new Error('Only JPEG, PNG, WebP, or GIF images are allowed.'), false)
+}
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB per file — keeps documents lean
 })
 
-module.exports = upload
+const uploadListingImages = upload.array('images', 10)
+
+module.exports = { upload, uploadListingImages }

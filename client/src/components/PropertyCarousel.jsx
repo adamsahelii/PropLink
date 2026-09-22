@@ -2,64 +2,55 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { IoChevronBackOutline, IoChevronForwardOutline, IoLocationOutline, IoBedOutline, IoWaterOutline } from 'react-icons/io5'
 import { Link } from 'react-router-dom'
-import { fadeUp } from '../utils/motion'
-
+import noPhoto from '../assets/no-photo.jpg'
 const EASE = [0.25, 0.46, 0.45, 0.94]
-
-const PROPERTIES = [
-  {
-    id: 1, slug: 'modern-penthouse-achrafieh',
-    title: 'Modern Penthouse in Achrafieh',
-    location: 'Achrafieh, Beirut',
-    rawPrice: 2500, suffix: '/mo', purpose: 'rent', type: 'Apartment', beds: 3, baths: 2,
-    img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=75',
-  },
-  {
-    id: 2, slug: 'luxury-sea-view-villa',
-    title: 'Luxury Sea-View Villa',
-    location: 'Kaslik, Jounieh',
-    rawPrice: 850000, suffix: '', purpose: 'sale', type: 'Villa', beds: 5, baths: 4,
-    img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=75',
-  },
-  {
-    id: 3, slug: 'boutique-apartment-verdun',
-    title: 'Boutique Apartment, Verdun',
-    location: 'Verdun, Beirut',
-    rawPrice: 1200, suffix: '/mo', purpose: 'rent', type: 'Apartment', beds: 2, baths: 1,
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=75',
-  },
-  {
-    id: 4, slug: 'cliffside-retreat-batroun',
-    title: 'Cliffside Retreat',
-    location: 'Batroun',
-    rawPrice: 420000, suffix: '', purpose: 'sale', type: 'Villa', beds: 4, baths: 3,
-    img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=800&q=75',
-  },
-  {
-    id: 5, slug: 'mediterranean-estate-jounieh',
-    title: 'Mediterranean Estate',
-    location: 'Jounieh',
-    rawPrice: 1200000, suffix: '', purpose: 'sale', type: 'Villa', beds: 6, baths: 5,
-    img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=75',
-  },
-]
-
-const N    = PROPERTIES.length
-const wrap = (i) => ((i % N) + N) % N
-
-function relPos(idx, active) {
-  let r = idx - active
-  if (r > Math.floor(N / 2)) r -= N
-  if (r < -Math.ceil(N / 2)) r += N
-  return r
-}
+const FALLBACK_IMG = noPhoto
 
 export default function PropertyCarousel() {
+  const [items,    setItems]    = useState([])
+  const [loading,  setLoading]  = useState(true)
   const [active,   setActive]   = useState(0)
   const [paused,   setPaused]   = useState(false)
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640)
   const headerRef = useRef(null)
   const isInView  = useInView(headerRef, { once: true, margin: '-60px' })
+
+  // Fetch newest listings and map them to the card shape
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch('/api/listings?sort=newest&limit=5', { signal: controller.signal })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const mapped = data.listings.map(l => ({
+            id:       l._id,
+            slug:     l.slug,
+            title:    l.title,
+            location: [l.location?.area, l.location?.city].filter(Boolean).join(', '),
+            rawPrice: l.price,
+            suffix:   l.purpose === 'rent' ? '/mo' : '',
+            purpose:  l.purpose,
+            type:     l.propertyType,
+            beds:     l.bedrooms,
+            baths:    l.bathrooms,
+            img:      l.images?.[0]?.url || FALLBACK_IMG,
+          }))
+          setItems(mapped)
+        }
+      })
+      .catch(err => { if (err.name !== 'AbortError') console.error(err) })
+      .finally(() => setLoading(false))
+    return () => controller.abort()
+  }, [])
+
+  const N    = items.length
+  const wrap = useCallback((i) => (N ? ((i % N) + N) % N : 0), [N])
+  const relPos = useCallback((idx, act) => {
+    let r = idx - act
+    if (r > Math.floor(N / 2))  r -= N
+    if (r < -Math.ceil(N / 2))  r += N
+    return r
+  }, [N])
 
   useEffect(() => {
     const update = () => setIsMobile(window.innerWidth < 640)
@@ -70,18 +61,18 @@ export default function PropertyCarousel() {
   const dragStartX = useRef(null)
   const hasDragged = useRef(false)
 
-  const prev = useCallback(() => { setPaused(true); setActive(a => wrap(a - 1)) }, [])
-  const next = useCallback(() => { setPaused(true); setActive(a => wrap(a + 1)) }, [])
+  const prev = useCallback(() => { setPaused(true); setActive(a => wrap(a - 1)) }, [wrap])
+  const next = useCallback(() => { setPaused(true); setActive(a => wrap(a + 1)) }, [wrap])
 
   useEffect(() => {
-    if (paused) return
+    if (paused || N === 0) return
     const t = setInterval(() => setActive(a => wrap(a + 1)), 4200)
     return () => clearInterval(t)
-  }, [paused])
+  }, [paused, N, wrap])
 
-  const onPtrDown   = (e) => { dragStartX.current = e.clientX; hasDragged.current = false }
-  const onPtrMove   = (e) => { if (dragStartX.current !== null && Math.abs(e.clientX - dragStartX.current) > 8) hasDragged.current = true }
-  const onPtrUp     = (e) => {
+  const onPtrDown = (e) => { dragStartX.current = e.clientX; hasDragged.current = false }
+  const onPtrMove = (e) => { if (dragStartX.current !== null && Math.abs(e.clientX - dragStartX.current) > 8) hasDragged.current = true }
+  const onPtrUp   = (e) => {
     if (hasDragged.current && dragStartX.current !== null) {
       const delta = e.clientX - dragStartX.current
       if (delta < -60) next()
@@ -101,16 +92,13 @@ export default function PropertyCarousel() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: EASE }}
         >
-          {/* Eyebrow with flanking rules — matches Testimonials pattern */}
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-8 bg-gold/45" />
             <p className="section-label text-gold/80">Curated Selection</p>
             <div className="h-px w-8 bg-gold/45" />
           </div>
 
-          <h2
-            className="font-serif text-3xl md:text-4xl text-forest font-bold leading-tight mb-4"
-          >
+          <h2 className="font-serif text-3xl md:text-4xl text-forest font-bold leading-tight mb-4">
             Find Your Next Property
           </h2>
 
@@ -130,7 +118,20 @@ export default function PropertyCarousel() {
         onPointerUp={onPtrUp}
         onPointerCancel={() => { dragStartX.current = null; hasDragged.current = false }}
       >
-        {PROPERTIES.map((prop, i) => {
+        {loading && (
+          <div className="w-[260px] sm:w-[280px] md:w-[300px]">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-md animate-pulse">
+              <div className="h-44 bg-gray-200" />
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-gray-100 rounded-full w-3/4" />
+                <div className="h-3 bg-gray-100 rounded-full w-1/2" />
+                <div className="h-3 bg-gray-100 rounded-full w-2/3" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!loading && items.map((prop, i) => {
           const rel = relPos(i, active)
           const abs = Math.abs(rel)
           const maxVisible = isMobile ? 1 : 2
@@ -160,34 +161,36 @@ export default function PropertyCarousel() {
       </div>
 
       {/* ── Controls ──────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-center gap-5 mt-9">
-        <button
-          onClick={prev}
-          className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center text-forest hover:bg-forest hover:text-white hover:border-forest transition-all duration-200"
-          aria-label="Previous"
-        >
-          <IoChevronBackOutline className="w-5 h-5" />
-        </button>
+      {!loading && N > 0 && (
+        <div className="flex items-center justify-center gap-5 mt-9">
+          <button
+            onClick={prev}
+            className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center text-forest hover:bg-forest hover:text-white hover:border-forest transition-all duration-200"
+            aria-label="Previous"
+          >
+            <IoChevronBackOutline className="w-5 h-5" />
+          </button>
 
-        <div className="flex items-center gap-2">
-          {PROPERTIES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => { setActive(i); setPaused(true) }}
-              className={`rounded-full transition-all duration-300 ${i === active ? 'w-6 h-2 bg-gold' : 'w-2 h-2 bg-forest/20 hover:bg-gold/50'}`}
-              aria-label={`Go to property ${i + 1}`}
-            />
-          ))}
+          <div className="flex items-center gap-2">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setActive(i); setPaused(true) }}
+                className={`rounded-full transition-all duration-300 ${i === active ? 'w-6 h-2 bg-gold' : 'w-2 h-2 bg-forest/20 hover:bg-gold/50'}`}
+                aria-label={`Go to property ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={next}
+            className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center text-forest hover:bg-forest hover:text-white hover:border-forest transition-all duration-200"
+            aria-label="Next"
+          >
+            <IoChevronForwardOutline className="w-5 h-5" />
+          </button>
         </div>
-
-        <button
-          onClick={next}
-          className="w-11 h-11 rounded-full border border-forest/20 flex items-center justify-center text-forest hover:bg-forest hover:text-white hover:border-forest transition-all duration-200"
-          aria-label="Next"
-        >
-          <IoChevronForwardOutline className="w-5 h-5" />
-        </button>
-      </div>
+      )}
 
       {/* ── View All ──────────────────────────────────────────────────────────── */}
       <div className="text-center mt-8">
@@ -196,10 +199,7 @@ export default function PropertyCarousel() {
           className="inline-flex items-center gap-2 text-forest/70 text-[12px] font-semibold tracking-[0.15em] uppercase hover:text-gold transition-colors duration-200 group"
         >
           Explore All Properties
-          <svg
-            className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-          >
+          <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </Link>
@@ -215,18 +215,14 @@ function CarouselCard({ prop, isCenter }) {
   const { title, location, rawPrice, suffix, purpose, type, beds, baths, img, slug } = prop
 
   return (
-    <div
-      className={`bg-white rounded-3xl overflow-hidden transition-shadow duration-300 ${
-        isCenter ? 'shadow-2xl shadow-charcoal/12' : 'shadow-md'
-      }`}
-    >
-      {/* Image */}
+    <div className={`bg-white rounded-3xl overflow-hidden transition-shadow duration-300 ${isCenter ? 'shadow-2xl shadow-charcoal/12' : 'shadow-md'}`}>
       <div className="relative h-44 overflow-hidden">
         <img
           src={img}
           alt={title}
           className={`w-full h-full object-cover transition-transform duration-700 ${isCenter ? 'scale-100' : 'scale-105'}`}
           draggable={false}
+          onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMG }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
 
@@ -238,17 +234,14 @@ function CarouselCard({ prop, isCenter }) {
 
         <div className="absolute bottom-3 left-4">
           <p className="text-white font-serif text-lg font-bold drop-shadow-md">
-            ${rawPrice.toLocaleString()}
+            ${rawPrice?.toLocaleString()}
             <span className="text-white/70 text-xs font-sans font-normal">{suffix}</span>
           </p>
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-4">
-        <h3 className="font-serif text-[15px] font-semibold text-charcoal line-clamp-1 mb-1.5">
-          {title}
-        </h3>
+        <h3 className="font-serif text-[15px] font-semibold text-charcoal line-clamp-1 mb-1.5">{title}</h3>
 
         <div className="flex items-center gap-1 text-xs mb-3" style={{ color: 'rgba(30,30,30,0.45)' }}>
           <IoLocationOutline className="w-3.5 h-3.5 text-gold shrink-0" />
@@ -256,8 +249,8 @@ function CarouselCard({ prop, isCenter }) {
         </div>
 
         <div className="flex items-center gap-3 text-[11px] mb-4" style={{ color: 'rgba(30,30,30,0.42)' }}>
-          <div className="flex items-center gap-1"><IoBedOutline className="w-3.5 h-3.5" />{beds} Beds</div>
-          <div className="flex items-center gap-1"><IoWaterOutline className="w-3.5 h-3.5" />{baths} Baths</div>
+          {beds != null && <div className="flex items-center gap-1"><IoBedOutline className="w-3.5 h-3.5" />{beds} Beds</div>}
+          {baths != null && <div className="flex items-center gap-1"><IoWaterOutline className="w-3.5 h-3.5" />{baths} Baths</div>}
           <span className="ml-auto text-[10px] bg-forest/8 text-forest px-2 py-0.5 rounded-full font-medium">{type}</span>
         </div>
 
