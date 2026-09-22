@@ -37,6 +37,10 @@ export function AuthProvider({ children }) {
     setToken(null)
     setUser(null)
   }
+  // Merge updated fields into the current user (e.g. after a profile edit)
+  function updateUser(updatedUser) {
+    setUser(prev => ({ ...prev, ...updatedUser }))
+  }
 
   async function login(email, password) {
     try {
@@ -80,7 +84,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout , updateUser}}>
       {children}
     </AuthContext.Provider>
   )

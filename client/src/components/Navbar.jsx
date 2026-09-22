@@ -208,6 +208,16 @@ if (isAdmin) {
                       )}
                     </div>
 
+                    {/* Profile Settings */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                    >
+                      <IoPersonOutline className="w-4 h-4" aria-hidden="true" />
+                      Profile Settings
+                    </Link>
+
                     {/* Owner Dashboard */}
                     {canManageListings && (
                       <Link
@@ -304,6 +314,13 @@ if (isAdmin) {
                         </span>
                       )}
                     </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                    >
+                      <IoPersonOutline className="w-4 h-4" aria-hidden="true" />
+                      Profile Settings
+                    </Link>
                     {canManageListings && (
                       <Link
                         to="/my-listings"

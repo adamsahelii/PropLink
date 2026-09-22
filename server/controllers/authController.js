@@ -47,6 +47,63 @@ exports.register = asyncHandler(async (req, res, next) => {
 
   sendTokenResponse(user, 201, res)
 })
+// ── PUT /api/auth/update-me  (protected) ─────────────────────────────────────
+//
+// Updates profile fields only: name, email, phoneNumber.
+// Deliberately does NOT touch password (own endpoint), role, or isActive —
+// those must never be self-editable through this route.
+
+exports.updateProfile = asyncHandler(async (req, res, next) => {
+  const { name, email, phoneNumber, role } = req.body
+
+  const user = await User.findById(req.user._id)
+  if (!user) {
+    return next(new AppError('User not found.', 404))
+  }
+
+  // ── Name ──
+  if (name !== undefined) {
+    const trimmed = name.trim()
+    if (trimmed.length === 0) {
+      return next(new AppError('Name cannot be empty.', 400))
+    }
+    user.name = trimmed
+  }
+
+  // ── Email ── (check uniqueness only if it actually changed)
+  if (email !== undefined) {
+    const normalized = email.toLowerCase().trim()
+    if (normalized !== user.email) {
+      const taken = await User.findOne({ email: normalized })
+      if (taken) {
+        return next(new AppError('That email is already in use.', 409))
+      }
+      user.email = normalized
+    }
+  }
+
+  // ── Phone ── (optional field — allow clearing it)
+  if (phoneNumber !== undefined) {
+    user.phoneNumber = phoneNumber.trim()
+  }
+
+  // ── Role ── buyer/owner switch only.
+  // Whitelisted to 'user' and 'owner' so nobody can self-promote to admin,
+  // and an admin can't accidentally demote themselves through this route.
+  if (
+    role !== undefined &&
+    ['user', 'owner'].includes(role) &&
+    ['user', 'owner'].includes(user.role)
+  ) {
+    user.role = role
+  }
+
+  // Runs schema validators (email format, phone regex, name maxlength).
+  // Password is untouched, so the pre-save hash hook is a no-op.
+  await user.save()
+
+  sendTokenResponse(user, 200, res)
+})
 
 // ── POST /api/auth/login ──────────────────────────────────────────────────────
 

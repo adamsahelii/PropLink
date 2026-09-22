@@ -14,6 +14,7 @@ import MyPropertiesPage from './pages/MyPropertiesPage'
 import AdminPage from './pages/AdminPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import ProfilePage from './pages/ProfilePage'
 function App() {
   return (
     <AuthProvider>
@@ -26,7 +27,6 @@ function App() {
         <Route path="/about"          element={<AboutPage />} />
         <Route path="/privacy"        element={<PrivacyPage />} />
         <Route path="/terms"          element={<TermsPage />} />
-        <Route path="/contact"        element={<ContactPage />} />
         <Route path="/contact"        element={<ContactPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/register"       element={<RegisterPage />} />
@@ -45,6 +45,10 @@ function App() {
 <Route element={<ProtectedRoute roles={['admin']} />}>
   <Route path="/admin" element={<AdminPage />} />
 </Route>
+        {/* ── Protected — any authenticated user ─────────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
 
         {/* ── Protected — admin only ──────────────────────────────── */}
         <Route element={<ProtectedRoute roles={['admin']} />}>
