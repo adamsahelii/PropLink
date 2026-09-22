@@ -12,6 +12,8 @@ import AboutPage from './pages/AboutPage'
 import AddResidencePage from './pages/AddResidencePage' 
 import MyPropertiesPage from './pages/MyPropertiesPage'
 import AdminPage from './pages/AdminPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
 function App() {
   return (
     <AuthProvider>
@@ -22,6 +24,9 @@ function App() {
         <Route path="/listings/:slug" element={<PropertyDetailPage />} />
         <Route path="/find-my-place"  element={<FindMyPlacePage />} />
         <Route path="/about"          element={<AboutPage />} />
+        <Route path="/privacy"        element={<PrivacyPage />} />
+        <Route path="/terms"          element={<TermsPage />} />
+        <Route path="/contact"        element={<ContactPage />} />
         <Route path="/contact"        element={<ContactPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/register"       element={<RegisterPage />} />
