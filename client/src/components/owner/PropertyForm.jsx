@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { IoAlertCircleOutline, IoInformationCircleOutline } from 'react-icons/io5'
 import LocationPicker from './LocationPicker'
-import ImageUploader from './ImageUploader'
+import { IoCloseCircle, IoImagesOutline } from 'react-icons/io5'
 import { CITIES } from '../../data/cities'
 
 // ── Schema-mirrored options (server/models/Listing.js) ────────────────────────
@@ -279,6 +279,89 @@ function Section({ title, description, children }) {
   )
 }
 
+// ── Photos (base64, no Cloudinary) ────────────────────────────────────────────
+
+const MAX_PHOTOS = 5
+const MAX_PHOTO_BYTES = 1024 * 1024 // 1 MB — base64 is stored inside MongoDB
+
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+function LocalImagePicker({ images, onChange, disabled }) {
+  const [error, setError] = useState('')
+  const slotsLeft = MAX_PHOTOS - images.length
+
+  async function addFiles(e) {
+    const files = Array.from(e.target.files || [])
+    e.target.value = '' // allow re-selecting the same file
+    setError('')
+
+    const tooBig = files.find((f) => f.size > MAX_PHOTO_BYTES)
+    if (tooBig) {
+      setError(`"${tooBig.name}" is larger than 1 MB.`)
+      return
+    }
+
+    const picked = files.slice(0, slotsLeft)
+    const urls = await Promise.all(picked.map(readAsDataURL))
+    onChange([
+      ...images,
+      ...picked.map((file, i) => ({ url: urls[i], publicId: `${Date.now()}-${file.name}` })),
+    ])
+  }
+
+  function remove(idx) {
+    onChange(images.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <div className="space-y-4">
+      {slotsLeft > 0 && (
+        <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gold/35 bg-ivory py-8 cursor-pointer hover:border-gold transition-colors">
+          <IoImagesOutline className="w-7 h-7 text-forest/40" />
+          <span className="text-sm text-charcoal/60">Click to add photos</span>
+          <span className="text-xs text-charcoal/35">
+            JPG, PNG or WEBP · max 1 MB each · {slotsLeft} slot{slotsLeft === 1 ? '' : 's'} left
+          </span>
+          <input type="file" accept="image/*" multiple onChange={addFiles} disabled={disabled} className="hidden" />
+        </label>
+      )}
+
+      {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
+
+      {images.length > 0 && (
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {images.map((img, idx) => (
+            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-forest/10">
+              <img src={img.url} alt="" className="h-full w-full object-cover" />
+              {idx === 0 && (
+                <span className="absolute bottom-1 left-1 bg-black/55 text-white text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full">
+                  Cover
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => remove(idx)}
+                disabled={disabled}
+                aria-label="Remove photo"
+                className="absolute top-1 right-1 text-white bg-black/50 rounded-full hover:bg-red-500 transition-colors"
+              >
+                <IoCloseCircle className="w-5 h-5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 /**
@@ -501,7 +584,7 @@ export default function PropertyForm({ mode, initialValues, submitting, submitEr
 
       {/* ── Photos ───────────────────────────────────────────────────────── */}
       <Section title="Photos" description="Good photos are the single biggest driver of enquiries.">
-        <ImageUploader
+        <LocalImagePicker
           images={form.images}
           onChange={set('images')}
           disabled={submitting}

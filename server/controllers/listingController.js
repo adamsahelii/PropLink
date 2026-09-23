@@ -217,6 +217,12 @@ exports.updateListing = asyncHandler(async (req, res, next) => {
 
   Object.assign(listing, updates)
 
+  // Owner edits go back through review; admin edits don't
+  if (req.user.role !== 'admin') {
+    listing.approvalStatus = 'pending'
+    listing.rejectionReason = ''
+  }
+
 
 
   await listing.save() // triggers slug pre-save hook if title changed

@@ -12,6 +12,7 @@ import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
 import AddResidencePage from './pages/AddResidencePage' 
+import ListingFormPage from './pages/ListingFormPage' 
 import MyPropertiesPage from './pages/MyPropertiesPage'
 import AdminPage from './pages/AdminPage'
 import PrivacyPage from './pages/PrivacyPage'
@@ -51,6 +52,7 @@ function App() {
 <Route element={<ProtectedRoute roles={['owner', 'admin']} />}>
   <Route path="/add-residence" element={<AddResidencePage />} />
   <Route path="/my-properties" element={<MyPropertiesPage />} />
+  <Route path="/my-properties/:id/edit" element={<ListingFormPage mode="edit" />} />
   <Route path="/analytics" element={<OwnerAnalyticsPage />} />
   <Route path="/inbox" element={<OwnerInboxPage />} />
 </Route>

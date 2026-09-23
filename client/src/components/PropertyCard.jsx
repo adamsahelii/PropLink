@@ -52,11 +52,16 @@ export default function PropertyCard({ property, index = 0 }) {
         {/* Dark gradient bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-        {/* Purpose badge */}
-        <div className="absolute top-4 left-4">
+        {/* Purpose + availability badges */}
+        <div className="absolute top-4 left-4 flex items-center gap-2">
           <span className="bg-gold text-white text-[10px] font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full">
             {purpose === 'rent' ? 'For Rent' : 'For Sale'}
           </span>
+          {status && status !== 'available' && (
+            <span className="bg-black/50 backdrop-blur-sm text-white text-[10px] font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full">
+              {status}
+            </span>
+          )}
         </div>
 
         {/* Type badge + favorite */}

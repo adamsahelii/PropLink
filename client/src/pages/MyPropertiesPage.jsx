@@ -268,7 +268,7 @@ export default function MyPropertiesPage() {
                     {/* Owner actions */}
                     <div className="flex gap-2 mt-3">
                       <Link
-                        to={`/edit-residence/${listing._id}`}
+                        to={`/my-properties/${listing._id}/edit`}
                         className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium
                                    text-forest border border-forest/20 rounded-full py-2 hover:bg-forest/5 transition-colors"
                       >
