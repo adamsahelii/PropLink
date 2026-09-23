@@ -93,6 +93,21 @@ exports.getAllListings = asyncHandler(async (req, res, next) => {
   paginatedResponse(res, { listings, total, page, limit })
 })
 
+// ── GET /api/listings/stats/cities ───────────────────────────────────────────
+// Public. Returns { cityname: count } for every city in one query,
+// using the same visibility rules as the public listings endpoint.
+// Keys are lowercase so they match the case-insensitive city filter.
+
+exports.getCityCounts = asyncHandler(async (req, res, next) => {
+  const rows = await Listing.aggregate([
+    { $match: { isDeleted: false, approvalStatus: 'approved', status: { $ne: 'inactive' } } },
+    { $group: { _id: { $toLower: { $trim: { input: '$location.city' } } }, count: { $sum: 1 } } },
+  ])
+
+  const counts = Object.fromEntries(rows.map(r => [r._id, r.count]))
+  res.status(200).json({ success: true, counts })
+})
+
 // ── GET /api/listings/my ──────────────────────────────────────────────────────
 // Owners see all their own listings regardless of approval status.
 // Supports the same filter/sort/pagination params as the public endpoint.
