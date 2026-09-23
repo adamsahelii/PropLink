@@ -81,7 +81,7 @@ exports.getAllListings = asyncHandler(async (req, res, next) => {
   const { page, limit, skip } = getPagination(req.query.page, req.query.limit)
 
   const [listings, total] = await Promise.all([
-    Listing.find(filter)
+    Listing.find(filter, { images: { $slice: 1 } })
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -104,7 +104,7 @@ exports.getMyListings = asyncHandler(async (req, res, next) => {
   const { page, limit, skip } = getPagination(req.query.page, req.query.limit)
 
   const [listings, total] = await Promise.all([
-    Listing.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+    Listing.find(filter, { images: { $slice: 1 } }).sort(sort).skip(skip).limit(limit).lean(),
     Listing.countDocuments(filter),
   ])
 

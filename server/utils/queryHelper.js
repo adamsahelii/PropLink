@@ -1,74 +1,74 @@
 // ── Listing query builder ─────────────────────────────────────────────────────
-// All functions are pure — they take params and return plain objects.
-// Controllers pass a baseFilter so the same helpers work for public,
-// owner, and admin queries without duplicating logic.
 
 const VALID_PROPERTY_TYPES = ['apartment', 'land']
 const VALID_PURPOSES = ['rent', 'sale']
 const VALID_STATUSES = ['available', 'pending', 'rented', 'sold']
 
-/**
- * Merges query-string params into a MongoDB filter object.
- * @param {object} queryParams  - req.query
- * @param {object} baseFilter   - required conditions (e.g. { isDeleted: false, approvalStatus: 'approved' })
- */
+// Only accept plain strings (?x=a&x=b arrives as an array)
+const str = (v) => (typeof v === 'string' ? v.trim() : '')
+
+// Escape regex special characters so user input is matched literally
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// Parse a non-negative number, or return undefined
+const num = (v) => {
+  const n = Number(str(v))
+  return str(v) !== '' && Number.isFinite(n) && n >= 0 ? n : undefined
+}
+
 const buildListingFilter = (queryParams = {}, baseFilter = {}) => {
   const filter = { ...baseFilter }
-  const { keyword, city, propertyType, purpose, status, minPrice, maxPrice } = queryParams
 
-  // Location — case-insensitive partial match
-  if (city) filter['location.city'] = { $regex: city.trim(), $options: 'i' }
+  const keyword      = str(queryParams.keyword).slice(0, 100)
+  const city         = str(queryParams.city)
+  const propertyType = str(queryParams.propertyType)
+  const purpose      = str(queryParams.purpose)
+  const status       = str(queryParams.status)
+  const minPrice     = num(queryParams.minPrice)
+  const maxPrice     = num(queryParams.maxPrice)
 
-  // Enum filters — only apply when value is a known enum member (prevents injection)
-  if (propertyType && VALID_PROPERTY_TYPES.includes(propertyType)) {
-    filter.propertyType = propertyType
+  // City — exact name, case-insensitive
+  if (city) {
+    filter['location.city'] = { $regex: `^${escapeRegex(city)}$`, $options: 'i' }
   }
-  if (purpose && VALID_PURPOSES.includes(purpose)) {
-    filter.purpose = purpose
-  }
-  if (status && VALID_STATUSES.includes(status)) {
-    filter.status = status
-  }
+
+  if (VALID_PROPERTY_TYPES.includes(propertyType)) filter.propertyType = propertyType
+  if (VALID_PURPOSES.includes(purpose))            filter.purpose = purpose
+  if (VALID_STATUSES.includes(status))             filter.status = status
 
   // Price range
-  if (minPrice || maxPrice) {
+  if (minPrice !== undefined || maxPrice !== undefined) {
     filter.price = {}
-    if (minPrice) filter.price.$gte = Number(minPrice)
-    if (maxPrice) filter.price.$lte = Number(maxPrice)
+    if (minPrice !== undefined) filter.price.$gte = minPrice
+    if (maxPrice !== undefined) filter.price.$lte = maxPrice
   }
 
-  // Full-text keyword search across title, description, and location fields
+  // Keyword — literal, case-insensitive, across text + location fields
   if (keyword) {
-    const re = { $regex: keyword.trim(), $options: 'i' }
+    const re = { $regex: escapeRegex(keyword), $options: 'i' }
     filter.$or = [
       { title: re },
       { description: re },
       { 'location.city': re },
       { 'location.area': re },
+      { 'location.address': re },
     ]
   }
 
   return filter
 }
 
-/**
- * Converts a sort query param string into a MongoDB sort object.
- * Defaults to newest-first when the value is absent or unrecognised.
- */
+// _id tiebreaker keeps order stable across pages when values are equal
 const buildSortOption = (sort) => {
   const map = {
-    newest:     { createdAt: -1 },
-    oldest:     { createdAt: 1 },
-    'price-asc':  { price: 1 },
-    'price-desc': { price: -1 },
+    newest:       { createdAt: -1, _id: -1 },
+    oldest:       { createdAt: 1,  _id: 1 },
+    'price-asc':  { price: 1,  _id: 1 },
+    'price-desc': { price: -1, _id: -1 },
   }
-  return map[sort] || { createdAt: -1 }
+  return map[str(sort)] || map.newest
 }
 
-/**
- * Returns safe, bounded pagination values.
- * Page is 1-indexed. Limit is capped at 50 to protect DB load.
- */
 const getPagination = (pageParam = '1', limitParam = '12') => {
   const page  = Math.max(1, parseInt(pageParam)  || 1)
   const limit = Math.min(50, Math.max(1, parseInt(limitParam) || 12))
