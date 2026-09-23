@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Listing = require('../models/Listing')
 const Analytics = require('../models/Analytics')
 const AppError = require('../utils/AppError')
@@ -128,6 +129,35 @@ exports.getPendingListings = asyncHandler(async (req, res, next) => {
   ])
 
   paginatedResponse(res, { listings, total, page, limit })
+})
+
+// ── GET /api/listings/compare?ids=a,b,c ──────────────────────────────────────
+// Public. Returns up to 4 approved listings for the comparison page,
+// in the same order the buyer added them.
+
+exports.getCompareListings = asyncHandler(async (req, res, next) => {
+  const ids = (req.query.ids || '')
+    .split(',')
+    .map(id => id.trim())
+    .filter(id => mongoose.Types.ObjectId.isValid(id))
+    .slice(0, 4)
+
+  if (ids.length === 0) {
+    return res.status(200).json({ success: true, listings: [] })
+  }
+
+  // Only the first image: images are stored as base64, so sending all of them would be very heavy
+  const found = await Listing.find(
+    { _id: { $in: ids }, isDeleted: false, approvalStatus: 'approved' },
+    { images: { $slice: 1 } }
+  ).lean()
+
+  // Keep the buyer's order
+  const listings = ids
+    .map(id => found.find(l => l._id.toString() === id))
+    .filter(Boolean)
+
+  res.status(200).json({ success: true, listings })
 })
 
 // ── GET /api/listings/:slug ───────────────────────────────────────────────────

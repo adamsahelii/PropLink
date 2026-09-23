@@ -8,6 +8,7 @@ const {
   getMyListingById,
   getPendingListings,
   getListingBySlug,
+  getCompareListings,
   updateListing,
   deleteListing,
   approveListing,
@@ -20,6 +21,7 @@ const { upload } = require('../middleware/upload')
 // ── Public ────────────────────────────────────────────────────────────────────
 
 router.get('/', getAllListings)
+router.get('/compare', getCompareListings) // must stay above /:slug
 
 // ── Authenticated — static paths MUST be declared before /:slug / /:id ───────
 // Express matches routes in declaration order. If /:slug came first,

@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { FavoritesProvider } from './context/FavoritesContext'
+import { CompareProvider } from './context/CompareContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import ListingsPage from './pages/ListingsPage'
@@ -18,15 +19,19 @@ import TermsPage from './pages/TermsPage'
 import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
 import OwnerAnalyticsPage from './pages/OwnerAnalyticsPage'
+import ComparePage from './pages/ComparePage'
+import CompareBar from './components/CompareBar'
 function App() {
   return (
     <AuthProvider>
       <FavoritesProvider>
+      <CompareProvider>
       <Routes>
         {/* ── Public ─────────────────────────────────────────────── */}
         <Route path="/"               element={<HomePage />} />
         <Route path="/listings"       element={<ListingsPage />} />
         <Route path="/listings/:slug" element={<PropertyDetailPage />} />
+        <Route path="/compare"        element={<ComparePage />} />
         <Route path="/find-my-place"  element={<FindMyPlacePage />} />
         <Route path="/about"          element={<AboutPage />} />
         <Route path="/privacy"        element={<PrivacyPage />} />
@@ -61,6 +66,8 @@ function App() {
           {/* Future: <Route path="/admin" element={<AdminPage />} /> */}
         </Route>
       </Routes>
+      <CompareBar />
+      </CompareProvider>
       </FavoritesProvider>
     </AuthProvider>
   )

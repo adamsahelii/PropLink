@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline, IoHeartOutline } from 'react-icons/io5'
+import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline, IoHeartOutline, IoGitCompareOutline } from 'react-icons/io5'
 import LogoMark from './LogoMark'
 import { useAuth } from '../context/AuthContext'
+import { useCompare } from '../context/CompareContext'
 
 const NAV_LINKS = [
   { label: 'Home',          to: '/' },
@@ -33,6 +34,7 @@ function UserInitial({ name, size = 30 }) {
 
 export default function Navbar() {
   const { user, loading, logout, token } = useAuth()
+  const { compareIds } = useCompare()
   const navigate   = useNavigate()
   const location   = useLocation()
 
@@ -228,6 +230,21 @@ if (isAdmin) {
                       Saved Properties
                     </Link>
 
+                    {/* Compare Properties */}
+                    <Link
+                      to="/compare"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                    >
+                      <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
+                      Compare Properties
+                      {compareIds.length > 0 && (
+                        <span className="ml-auto text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
+                          {compareIds.length}
+                        </span>
+                      )}
+                    </Link>
+
                     {/* Owner Dashboard */}
                     {canManageListings && (
                       <Link
@@ -337,6 +354,18 @@ if (isAdmin) {
                     >
                       <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
                       Saved Properties
+                    </Link>
+                    <Link
+                      to="/compare"
+                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                    >
+                      <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
+                      Compare Properties
+                      {compareIds.length > 0 && (
+                        <span className="text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
+                          {compareIds.length}
+                        </span>
+                      )}
                     </Link>
                     {canManageListings && (
                       <Link
