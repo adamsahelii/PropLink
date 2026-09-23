@@ -21,6 +21,8 @@ import FavoritesPage from './pages/FavoritesPage'
 import OwnerAnalyticsPage from './pages/OwnerAnalyticsPage'
 import ComparePage from './pages/ComparePage'
 import CompareBar from './components/CompareBar'
+import MyInquiriesPage from './pages/MyInquiriesPage'
+import OwnerInboxPage from './pages/OwnerInboxPage'
 function App() {
   return (
     <AuthProvider>
@@ -50,6 +52,7 @@ function App() {
   <Route path="/add-residence" element={<AddResidencePage />} />
   <Route path="/my-properties" element={<MyPropertiesPage />} />
   <Route path="/analytics" element={<OwnerAnalyticsPage />} />
+  <Route path="/inbox" element={<OwnerInboxPage />} />
 </Route>
 {/* ── Protected — admin only ──────────────────────────────── */}
 <Route element={<ProtectedRoute roles={['admin']} />}>
@@ -59,6 +62,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/my-inquiries" element={<MyInquiriesPage />} />
         </Route>
 
         {/* ── Protected — admin only ──────────────────────────────── */}

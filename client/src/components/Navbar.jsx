@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline, IoHeartOutline, IoGitCompareOutline } from 'react-icons/io5'
+import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline, IoHeartOutline, IoGitCompareOutline, IoChatbubblesOutline, IoMailOutline } from 'react-icons/io5'
 import LogoMark from './LogoMark'
 import { useAuth } from '../context/AuthContext'
 import { useCompare } from '../context/CompareContext'
@@ -230,6 +230,16 @@ if (isAdmin) {
                       Saved Properties
                     </Link>
 
+                    {/* My Inquiries */}
+                    <Link
+                      to="/my-inquiries"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                    >
+                      <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
+                      My Inquiries
+                    </Link>
+
                     {/* Compare Properties */}
                     <Link
                       to="/compare"
@@ -254,6 +264,18 @@ if (isAdmin) {
                       >
                         <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
                         Owner Dashboard
+                      </Link>
+                    )}
+
+                    {/* Owner Inbox */}
+                    {canManageListings && (
+                      <Link
+                        to="/inbox"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                      >
+                        <IoMailOutline className="w-4 h-4" aria-hidden="true" />
+                        Inbox
                       </Link>
                     )}
 
@@ -356,6 +378,13 @@ if (isAdmin) {
                       Saved Properties
                     </Link>
                     <Link
+                      to="/my-inquiries"
+                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                    >
+                      <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
+                      My Inquiries
+                    </Link>
+                    <Link
                       to="/compare"
                       className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
                     >
@@ -374,6 +403,15 @@ if (isAdmin) {
                       >
                         <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
                         Owner Dashboard
+                      </Link>
+                    )}
+                    {canManageListings && (
+                      <Link
+                        to="/inbox"
+                        className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                      >
+                        <IoMailOutline className="w-4 h-4" aria-hidden="true" />
+                        Inbox
                       </Link>
                     )}
                     <button
