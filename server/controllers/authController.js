@@ -2,6 +2,8 @@ const User = require('../models/User')
 const { generateToken } = require('../utils/jwt')
 const AppError = require('../utils/AppError')
 const asyncHandler = require('../utils/asyncHandler')
+const sendEmail = require('../utils/sendEmail')
+const crypto = require('crypto')
 
 // ── Private helper ────────────────────────────────────────────────────────────
 
@@ -182,4 +184,91 @@ exports.logout = asyncHandler(async (req, res, next) => {
     success: true,
     message: 'Logged out successfully.',
   })
+})
+
+// ── POST /api/auth/forgot-password ───────────────────────────────────────────
+//
+// Always returns the same response whether or not the email exists,
+// so the form can't be used to discover which emails are registered.
+
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  const email = typeof req.body.email === 'string' ? req.body.email.toLowerCase().trim() : ''
+
+  if (!email) {
+    return next(new AppError('Please provide your email address.', 400))
+  }
+
+  const genericResponse = {
+    success: true,
+    message: 'If an account exists for that email, a reset link has been sent.',
+  }
+
+  const user = await User.findOne({ email })
+  if (!user || !user.isActive) {
+    return res.status(200).json(genericResponse)
+  }
+
+  const rawToken = user.createPasswordResetToken()
+  await user.save({ validateBeforeSave: false })
+
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+  const resetUrl = `${clientUrl}/reset-password/${rawToken}`
+
+  // Dev fallback: lets you test even if email is blocked on the network
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('🔑 Password reset link:', resetUrl)
+  }
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'Reset your PropLink password',
+      html: `
+        <h2>Reset your password</h2>
+        <p>Hi ${user.name},</p>
+        <p>Someone requested a password reset for your PropLink account.
+           Click the link below to choose a new password. It expires in 15 minutes.</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>If you didn't request this, you can ignore this email — your password won't change.</p>
+      `,
+    })
+  } catch (err) {
+    console.error('Reset email failed:', err.message)
+  }
+
+  res.status(200).json(genericResponse)
+})
+
+// ── PATCH /api/auth/reset-password/:token ────────────────────────────────────
+//
+// Validates the one-time token, sets the new password, clears the token
+// so the link can't be reused, and logs the user straight in.
+
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  const { password } = req.body
+
+  if (typeof password !== 'string' || password.length < 8) {
+    return next(new AppError('Password must be at least 8 characters.', 400))
+  }
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex')
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  }).select('+password +passwordResetToken +passwordResetExpires')
+
+  if (!user || !user.isActive) {
+    return next(new AppError('This reset link is invalid or has expired.', 400))
+  }
+
+  user.password = password               // pre-save hook hashes it
+  user.passwordResetToken = undefined
+  user.passwordResetExpires = undefined
+  await user.save()
+
+  sendTokenResponse(user, 200, res)
 })

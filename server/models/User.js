@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 
 const userSchema = new mongoose.Schema(
   {
@@ -48,6 +49,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Password reset — only the SHA-256 hash of the token is stored
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
   },
   { timestamps: true }
 )
@@ -66,10 +76,23 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password)
 }
 
+// Creates a one-time reset token. Returns the raw token (goes in the email);
+// only its hash is saved, so a leaked database can't be used to reset passwords.
+userSchema.methods.createPasswordResetToken = function () {
+  const rawToken = crypto.randomBytes(32).toString('hex')
+
+  this.passwordResetToken = crypto.createHash('sha256').update(rawToken).digest('hex')
+  this.passwordResetExpires = Date.now() + 15 * 60 * 1000 // 15 minutes
+
+  return rawToken
+}
+
 // Strip sensitive fields from any JSON serialization
 userSchema.methods.toJSON = function () {
   const obj = this.toObject()
   delete obj.password
+  delete obj.passwordResetToken
+  delete obj.passwordResetExpires
   return obj
 }
 userSchema.index({ role: 1 })

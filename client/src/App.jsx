@@ -9,6 +9,8 @@ import FindMyPlacePage from './pages/FindMyPlacePage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
 import AddResidencePage from './pages/AddResidencePage' 
@@ -42,6 +44,8 @@ function App() {
         <Route path="/contact"        element={<ContactPage />} />
         <Route path="/login"          element={<LoginPage />} />
         <Route path="/register"       element={<RegisterPage />} />
+        <Route path="/forgot-password"        element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token"  element={<ResetPasswordPage />} />
 
         {/* ── Protected — any authenticated user ─────────────────── */}
         <Route element={<ProtectedRoute />}>
