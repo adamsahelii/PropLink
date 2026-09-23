@@ -9,6 +9,7 @@ router.get('/test', (_req, res) => {
 router.use('/auth', require('./auth'))
 router.use('/listings', require('./listings'))
 router.use('/favorites', require('./favorites'))
+router.use('/analytics', require('./analytics'))
 router.use('/inquiries', require('./inquiries'))
 router.use('/uploads', require('./uploads'))
 router.use('/example', require('./example'))

@@ -88,6 +88,13 @@ export const favoritesApi = {
   remove: (listingId) => request(`/favorites/${listingId}`, { method: 'DELETE' }),
 }
 
+// ── Owner analytics ───────────────────────────────────────────────────────────
+
+export const analyticsApi = {
+  /** GET /api/analytics/owner — totals + per-listing views/inquiries/favorites */
+  owner: ({ signal } = {}) => request('/analytics/owner', { signal }),
+}
+
 // ── Image uploads ─────────────────────────────────────────────────────────────
 // Multipart, so it bypasses `request` (the browser must set its own boundary).
 

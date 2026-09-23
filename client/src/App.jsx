@@ -17,6 +17,7 @@ import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import ProfilePage from './pages/ProfilePage'
 import FavoritesPage from './pages/FavoritesPage'
+import OwnerAnalyticsPage from './pages/OwnerAnalyticsPage'
 function App() {
   return (
     <AuthProvider>
@@ -43,6 +44,7 @@ function App() {
 <Route element={<ProtectedRoute roles={['owner', 'admin']} />}>
   <Route path="/add-residence" element={<AddResidencePage />} />
   <Route path="/my-properties" element={<MyPropertiesPage />} />
+  <Route path="/analytics" element={<OwnerAnalyticsPage />} />
 </Route>
 {/* ── Protected — admin only ──────────────────────────────── */}
 <Route element={<ProtectedRoute roles={['admin']} />}>
