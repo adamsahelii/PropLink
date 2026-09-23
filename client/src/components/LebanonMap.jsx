@@ -117,7 +117,7 @@ export default function LebanonMap({ city, onCitySelect, total, loading }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="relative rounded-[32px] overflow-hidden shadow-2xl"
+          className="relative isolate z-0 rounded-[32px] overflow-hidden shadow-2xl"
           style={{ height: 'clamp(300px, 50vw, 460px)' }}
         >
           <MapContainer
@@ -128,9 +128,16 @@ export default function LebanonMap({ city, onCitySelect, total, loading }) {
             attributionControl={false}
             style={{ height: '100%', width: '100%' }}
           >
+            {/* Esri Dark Gray Canvas — free, no API key (attribution required) */}
             <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              subdomains="abcd"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              maxNativeZoom={16}
+              maxZoom={19}
+            />
+            {/* City/place labels on top of the base */}
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+              maxNativeZoom={16}
               maxZoom={19}
             />
 
@@ -237,7 +244,7 @@ export default function LebanonMap({ city, onCitySelect, total, loading }) {
             className="absolute bottom-1.5 right-2 text-[9px] text-white/18 select-none"
             style={{ zIndex: 1000 }}
           >
-            © OpenStreetMap · CARTO
+            Tiles © Esri
           </div>
         </motion.div>
 

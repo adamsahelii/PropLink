@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import LoginPrompt from './LoginPrompt'
 
 /**
  * Wraps one or more routes that require authentication.
@@ -29,9 +30,9 @@ export default function ProtectedRoute({ roles }) {
     )
   }
 
-  // Not logged in — redirect to /login and remember where the user was heading
+  // Not logged in — show a prompt in place of the page (URL stays the same)
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <LoginPrompt from={location} />
   }
 
   // Logged in but wrong role — redirect to home

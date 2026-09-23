@@ -34,10 +34,6 @@ function App() {
       <Routes>
         {/* ── Public ─────────────────────────────────────────────── */}
         <Route path="/"               element={<HomePage />} />
-        <Route path="/listings"       element={<ListingsPage />} />
-        <Route path="/listings/:slug" element={<PropertyDetailPage />} />
-        <Route path="/compare"        element={<ComparePage />} />
-        <Route path="/find-my-place"  element={<FindMyPlacePage />} />
         <Route path="/about"          element={<AboutPage />} />
         <Route path="/privacy"        element={<PrivacyPage />} />
         <Route path="/terms"          element={<TermsPage />} />
@@ -66,6 +62,10 @@ function App() {
 </Route>
         {/* ── Protected — any authenticated user ─────────────────── */}
         <Route element={<ProtectedRoute />}>
+          <Route path="/listings"       element={<ListingsPage />} />
+          <Route path="/listings/:slug" element={<PropertyDetailPage />} />
+          <Route path="/compare"        element={<ComparePage />} />
+          <Route path="/find-my-place"  element={<FindMyPlacePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/my-inquiries" element={<MyInquiriesPage />} />
