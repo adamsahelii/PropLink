@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline } from 'react-icons/io5'
+import { IoLogOutOutline, IoChevronDownOutline, IoPersonOutline, IoBusinessOutline, IoHeartOutline } from 'react-icons/io5'
 import LogoMark from './LogoMark'
 import { useAuth } from '../context/AuthContext'
 
@@ -218,6 +218,16 @@ if (isAdmin) {
                       Profile Settings
                     </Link>
 
+                    {/* Saved Properties */}
+                    <Link
+                      to="/favorites"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                    >
+                      <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
+                      Saved Properties
+                    </Link>
+
                     {/* Owner Dashboard */}
                     {canManageListings && (
                       <Link
@@ -320,6 +330,13 @@ if (isAdmin) {
                     >
                       <IoPersonOutline className="w-4 h-4" aria-hidden="true" />
                       Profile Settings
+                    </Link>
+                    <Link
+                      to="/favorites"
+                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                    >
+                      <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
+                      Saved Properties
                     </Link>
                     {canManageListings && (
                       <Link

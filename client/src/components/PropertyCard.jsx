@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { fadeUp } from '../utils/motion'
-import { IoBedOutline, IoWaterOutline, IoLocationOutline, IoImageOutline } from 'react-icons/io5'
+import { IoBedOutline, IoWaterOutline, IoLocationOutline, IoImageOutline, IoHeart, IoHeartOutline } from 'react-icons/io5'
+import { useAuth } from '../context/AuthContext'
+import { useFavorites } from '../context/FavoritesContext'
 import noPhoto from '../assets/no-photo.jpg'
 // const CARD_IMAGES = [
 //   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=75',
@@ -12,6 +14,23 @@ import noPhoto from '../assets/no-photo.jpg'
 export default function PropertyCard({ property, index = 0 }) {
     const { title, location, price, propertyType, purpose, bedrooms, bathrooms, size, images, slug, status } = property
   const imgSrc = images?.[0]?.url || noPhoto
+
+  const { user } = useAuth()
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const navigate = useNavigate()
+  const saved = isFavorite(property._id)
+  const isOwn = user && property.ownerId && String(property.ownerId?._id ?? property.ownerId) === String(user._id)
+
+  const onHeartClick = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!user) return navigate('/login')
+    try {
+      await toggleFavorite(property._id)
+    } catch (err) {
+      console.error(err.message)
+    }
+  }
   return (
     <motion.div
       variants={fadeUp}
@@ -40,11 +59,25 @@ export default function PropertyCard({ property, index = 0 }) {
           </span>
         </div>
 
-        {/* Type badge */}
-        <div className="absolute top-4 right-4">
+        {/* Type badge + favorite */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
           <span className="bg-black/30 backdrop-blur-sm border border-white/20 text-white text-[10px] font-medium uppercase px-3 py-1.5 rounded-full">
             {propertyType}
           </span>
+          {!isOwn && (
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.85 }}
+              onClick={onHeartClick}
+              aria-label={saved ? 'Remove from favorites' : 'Save to favorites'}
+              aria-pressed={saved}
+              className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/45 transition-colors"
+            >
+              {saved
+                ? <IoHeart className="w-4 h-4 text-gold" />
+                : <IoHeartOutline className="w-4 h-4" />}
+            </motion.button>
+          )}
         </div>
 
         {/* Price */}

@@ -74,6 +74,20 @@ export const listingsApi = {
   remove: (id) => request(`/listings/${id}`, { method: 'DELETE' }),
 }
 
+// ── Favorites ─────────────────────────────────────────────────────────────────
+
+export const favoritesApi = {
+  /** GET /api/favorites/my — the signed-in user's saved listings */
+  list: ({ page = 1, limit = 12, signal } = {}) =>
+    request(`/favorites/my?page=${page}&limit=${limit}`, { signal }),
+
+  /** POST /api/favorites — listingId goes in the body */
+  add: (listingId) => request('/favorites', { method: 'POST', body: { listingId } }),
+
+  /** DELETE /api/favorites/:listingId */
+  remove: (listingId) => request(`/favorites/${listingId}`, { method: 'DELETE' }),
+}
+
 // ── Image uploads ─────────────────────────────────────────────────────────────
 // Multipart, so it bypasses `request` (the browser must set its own boundary).
 

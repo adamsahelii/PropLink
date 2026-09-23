@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { FavoritesProvider } from './context/FavoritesContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import ListingsPage from './pages/ListingsPage'
@@ -15,9 +16,11 @@ import AdminPage from './pages/AdminPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import ProfilePage from './pages/ProfilePage'
+import FavoritesPage from './pages/FavoritesPage'
 function App() {
   return (
     <AuthProvider>
+      <FavoritesProvider>
       <Routes>
         {/* ── Public ─────────────────────────────────────────────── */}
         <Route path="/"               element={<HomePage />} />
@@ -48,6 +51,7 @@ function App() {
         {/* ── Protected — any authenticated user ─────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
         </Route>
 
         {/* ── Protected — admin only ──────────────────────────────── */}
@@ -55,6 +59,7 @@ function App() {
           {/* Future: <Route path="/admin" element={<AdminPage />} /> */}
         </Route>
       </Routes>
+      </FavoritesProvider>
     </AuthProvider>
   )
 }
