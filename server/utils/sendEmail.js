@@ -10,10 +10,12 @@ const transporter = nodemailer.createTransport({
 })
 
 // Sends one email. `replyTo` lets the recipient reply straight to the visitor.
-async function sendEmail({ subject, html, replyTo }) {
+// `to` is optional: defaults to the PropLink inbox (contact form),
+// or pass a user's address (password reset).
+async function sendEmail({ to, subject, html, replyTo }) {
   return transporter.sendMail({
     from: `"PropLink" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_TO,
+    to: to || process.env.EMAIL_TO,
     subject,
     html,
     replyTo,

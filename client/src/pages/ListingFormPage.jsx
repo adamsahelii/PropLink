@@ -33,12 +33,12 @@ export default function ListingFormPage({ mode = 'create' }) {
     try {
       if (isEdit) {
         await listingsApi.update(id, payload)
-        navigate('/my-listings', {
+        navigate('/my-properties', {
           state: { flash: 'Changes saved. Your property is pending review again.' },
         })
       } else {
         await listingsApi.create(payload)
-        navigate('/my-listings', { state: { flash: 'Property submitted for review.' } })
+        navigate('/my-properties', { state: { flash: 'Property submitted for review.' } })
       }
     } catch (err) {
       // Stay on the page — PropertyForm keeps every value the owner entered
@@ -80,7 +80,7 @@ export default function ListingFormPage({ mode = 'create' }) {
             transition={{ duration: 0.55, ease: EASE }}
           >
             <Link
-              to="/my-listings"
+              to="/my-properties"
               className="inline-flex items-center gap-2 text-white/55 hover:text-gold text-xs font-medium tracking-wide transition-colors duration-200 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded"
             >
               <IoArrowBackOutline className="w-4 h-4" aria-hidden="true" />
@@ -132,7 +132,7 @@ export default function ListingFormPage({ mode = 'create' }) {
                   <IoRefreshOutline className="w-4 h-4" aria-hidden="true" />
                   Try again
                 </button>
-                <Link to="/my-listings" className="btn-gold rounded-full text-xs py-3 px-7">
+                <Link to="/my-properties" className="btn-gold rounded-full text-xs py-3 px-7">
                   Back to my properties
                 </Link>
               </div>
@@ -148,7 +148,7 @@ export default function ListingFormPage({ mode = 'create' }) {
               submitting={submitting}
               submitError={submitError}
               onSubmit={handleSubmit}
-              onCancel={() => navigate('/my-listings')}
+              onCancel={() => navigate('/my-properties')}
             />
           )}
         </div>

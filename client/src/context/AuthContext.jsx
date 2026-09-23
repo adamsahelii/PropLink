@@ -37,6 +37,10 @@ export function AuthProvider({ children }) {
     setToken(null)
     setUser(null)
   }
+  // Merge updated fields into the current user (e.g. after a profile edit)
+  function updateUser(updatedUser) {
+    setUser(prev => ({ ...prev, ...updatedUser }))
+  }
 
   async function login(email, password) {
     try {
@@ -68,6 +72,22 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Sets a new password from an emailed reset link, then logs the user in
+  async function resetPassword(resetToken, password) {
+    try {
+      const res  = await fetch(`/api/auth/reset-password/${encodeURIComponent(resetToken)}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ password }),
+      })
+      const data = await res.json()
+      if (data.success) { _persist(data.token, data.user); return { success: true } }
+      return { success: false, error: data.message ?? 'Could not reset password.' }
+    } catch {
+      return { success: false, error: 'Network error. Please try again.' }
+    }
+  }
+
   function logout() {
     const t = token
     _clear() // clear state immediately so UI updates at once
@@ -80,7 +100,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

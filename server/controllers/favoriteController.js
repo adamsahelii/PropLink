@@ -91,7 +91,7 @@ exports.getMyFavorites = asyncHandler(async (req, res, _next) => {
       .limit(limit)
       .populate({
         path: 'listingId',
-        select: 'title slug price location propertyType purpose status images approvalStatus',
+        select: 'title slug price location propertyType purpose status images approvalStatus bedrooms bathrooms size',
         match: { isDeleted: false },
       })
       .lean(),

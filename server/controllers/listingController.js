@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Listing = require('../models/Listing')
 const Analytics = require('../models/Analytics')
 const AppError = require('../utils/AppError')
@@ -39,12 +40,12 @@ exports.createListing = asyncHandler(async (req, res, next) => {
     city, area, address,
   } = req.body
 
-  // multer-storage-cloudinary: file.path = secure URL, file.filename = public_id
-  // Only real Cloudinary uploads have a URL (f.path). In-memory fallback
-  // files have no path, so we skip them and save the listing without photos.
-  const images = (req.files || [])
-    .filter(f => f.path && f.filename)
-    .map(f => ({ url: f.path, publicId: f.filename }))
+  // Files arrive in memory as Buffers. Convert each to a base64 data URI and
+  // store it directly in the document — no external host, survives redeploys.
+  const images = (req.files || []).map(f => ({
+    url: `data:${f.mimetype};base64,${f.buffer.toString('base64')}`,
+    publicId: `${Date.now()}-${f.originalname}`, // label only; kept for schema shape
+  }))
 
   const listing = await Listing.create({
     title,
@@ -80,7 +81,7 @@ exports.getAllListings = asyncHandler(async (req, res, next) => {
   const { page, limit, skip } = getPagination(req.query.page, req.query.limit)
 
   const [listings, total] = await Promise.all([
-    Listing.find(filter)
+    Listing.find(filter, { images: { $slice: 1 } })
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -90,6 +91,21 @@ exports.getAllListings = asyncHandler(async (req, res, next) => {
   ])
 
   paginatedResponse(res, { listings, total, page, limit })
+})
+
+// ── GET /api/listings/stats/cities ───────────────────────────────────────────
+// Public. Returns { cityname: count } for every city in one query,
+// using the same visibility rules as the public listings endpoint.
+// Keys are lowercase so they match the case-insensitive city filter.
+
+exports.getCityCounts = asyncHandler(async (req, res, next) => {
+  const rows = await Listing.aggregate([
+    { $match: { isDeleted: false, approvalStatus: 'approved', status: { $ne: 'inactive' } } },
+    { $group: { _id: { $toLower: { $trim: { input: '$location.city' } } }, count: { $sum: 1 } } },
+  ])
+
+  const counts = Object.fromEntries(rows.map(r => [r._id, r.count]))
+  res.status(200).json({ success: true, counts })
 })
 
 // ── GET /api/listings/my ──────────────────────────────────────────────────────
@@ -103,7 +119,7 @@ exports.getMyListings = asyncHandler(async (req, res, next) => {
   const { page, limit, skip } = getPagination(req.query.page, req.query.limit)
 
   const [listings, total] = await Promise.all([
-    Listing.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+    Listing.find(filter, { images: { $slice: 1 } }).sort(sort).skip(skip).limit(limit).lean(),
     Listing.countDocuments(filter),
   ])
 
@@ -128,6 +144,35 @@ exports.getPendingListings = asyncHandler(async (req, res, next) => {
   ])
 
   paginatedResponse(res, { listings, total, page, limit })
+})
+
+// ── GET /api/listings/compare?ids=a,b,c ──────────────────────────────────────
+// Public. Returns up to 4 approved listings for the comparison page,
+// in the same order the buyer added them.
+
+exports.getCompareListings = asyncHandler(async (req, res, next) => {
+  const ids = (req.query.ids || '')
+    .split(',')
+    .map(id => id.trim())
+    .filter(id => mongoose.Types.ObjectId.isValid(id))
+    .slice(0, 4)
+
+  if (ids.length === 0) {
+    return res.status(200).json({ success: true, listings: [] })
+  }
+
+  // Only the first image: images are stored as base64, so sending all of them would be very heavy
+  const found = await Listing.find(
+    { _id: { $in: ids }, isDeleted: false, approvalStatus: 'approved' },
+    { images: { $slice: 1 } }
+  ).lean()
+
+  // Keep the buyer's order
+  const listings = ids
+    .map(id => found.find(l => l._id.toString() === id))
+    .filter(Boolean)
+
+  res.status(200).json({ success: true, listings })
 })
 
 // ── GET /api/listings/:slug ───────────────────────────────────────────────────
@@ -186,6 +231,12 @@ exports.updateListing = asyncHandler(async (req, res, next) => {
     : []
 
   Object.assign(listing, updates)
+
+  // Owner edits go back through review; admin edits don't
+  if (req.user.role !== 'admin') {
+    listing.approvalStatus = 'pending'
+    listing.rejectionReason = ''
+  }
 
 
 

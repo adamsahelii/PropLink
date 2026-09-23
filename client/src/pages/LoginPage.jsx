@@ -84,9 +84,17 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="text-[10px] font-semibold tracking-[0.16em] text-charcoal/42 uppercase block mb-1.5">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] font-semibold tracking-[0.16em] text-charcoal/42 uppercase">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-[11px] font-medium text-gold hover:text-gold-dark transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <div className="relative">
                   <IoLockClosedOutline className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/32 pointer-events-none" />
                   <input

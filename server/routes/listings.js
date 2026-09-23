@@ -8,6 +8,8 @@ const {
   getMyListingById,
   getPendingListings,
   getListingBySlug,
+  getCompareListings,
+  getCityCounts,
   updateListing,
   deleteListing,
   approveListing,
@@ -15,11 +17,13 @@ const {
 } = require('../controllers/listingController')
 
 const { protect, authorize } = require('../middleware/auth')
-const upload = require('../middleware/upload')
+const { upload } = require('../middleware/upload')
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
 router.get('/', getAllListings)
+router.get('/compare', getCompareListings) // must stay above /:slug
+router.get('/stats/cities', getCityCounts) // one-query city counts for map + city cards
 
 // ── Authenticated — static paths MUST be declared before /:slug / /:id ───────
 // Express matches routes in declaration order. If /:slug came first,

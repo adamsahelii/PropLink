@@ -292,6 +292,11 @@ export default function ListingsPage() {
   const keyword      = searchParams.get('keyword')      || ''
   const page         = parseInt(searchParams.get('page') || '1')
 
+  // Keep the input in sync when the URL changes (back/forward, Clear, links)
+  useEffect(() => {
+    setLocalKeyword(keyword)
+  }, [keyword])
+
   const hasFilters = !!(keyword || city || propertyType || purpose || price)
 
   const { listings, total, pages, loading, error } = useListings({
@@ -572,7 +577,7 @@ export default function ListingsPage() {
           {/* Grid */}
           {!loading && !error && listings.length > 0 && (
             <motion.div
-              key={`${city}-${propertyType}-${purpose}-${price}-${sort}-${page}`}
+              key={`${keyword}-${city}-${propertyType}-${purpose}-${price}-${sort}-${page}`}
               variants={staggerContainer(0.07, 0.05)}
               initial="hidden"
               animate="show"

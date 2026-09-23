@@ -19,10 +19,10 @@ function displayStatus(listing) {
 }
 
 const STATUS_STYLES = {
-  active:   'bg-forest/15 text-forest',
-  inactive: 'bg-charcoal/15 text-charcoal/70',
-  rented:   'bg-blue-100 text-blue-600',
-  sold:     'bg-charcoal/15 text-charcoal',
+  active:   'bg-forest text-white',
+  inactive: 'bg-charcoal/80 text-white',
+  rented:   'bg-blue-600 text-white',
+  sold:     'bg-red-600 text-white',
 }
 
 const STATUS_LABELS = {
@@ -268,7 +268,7 @@ export default function MyPropertiesPage() {
                     {/* Owner actions */}
                     <div className="flex gap-2 mt-3">
                       <Link
-                        to={`/edit-residence/${listing._id}`}
+                        to={`/my-properties/${listing._id}/edit`}
                         className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium
                                    text-forest border border-forest/20 rounded-full py-2 hover:bg-forest/5 transition-colors"
                       >

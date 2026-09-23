@@ -9,11 +9,13 @@ import {
   IoBedOutline, IoWaterOutline, IoLocationOutline, IoCallOutline,
   IoPersonOutline, IoArrowBackOutline, IoResizeOutline, IoHomeOutline,
   IoCalendarOutline, IoCheckmarkCircleOutline,
+  IoGitCompareOutline, IoCheckmarkOutline,
 } from 'react-icons/io5'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { CITY_PROFILES } from '../data/cityProfiles'
 import usePropertyDetail from '../hooks/usePropertyDetail'
+import { useCompare, MAX_COMPARE } from '../context/CompareContext'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -136,6 +138,20 @@ export default function PropertyDetailPage() {
   const navigate = useNavigate()
   const { token } = useAuth() 
   const { listing, loading, error } = usePropertyDetail(slug)
+  const { isInCompare, addToCompare, removeFromCompare } = useCompare()
+  const [compareMsg, setCompareMsg] = useState('')
+
+  function toggleCompare() {
+    if (isInCompare(listing._id)) {
+      removeFromCompare(listing._id)
+      return
+    }
+    const added = addToCompare(listing._id)
+    if (!added) {
+      setCompareMsg(`You can compare up to ${MAX_COMPARE} properties.`)
+      setTimeout(() => setCompareMsg(''), 3000)
+    }
+  }
 
   const [activeSection, setActiveSection]   = useState(0)
   const [activeImg, setActiveImg]           = useState(0)
@@ -305,6 +321,32 @@ export default function PropertyDetailPage() {
               <IoLocationOutline className="w-4 h-4 text-gold/75 shrink-0" />
               <span>{[listing.location?.area, listing.location?.city].filter(Boolean).join(', ')}</span>
             </div>
+          </motion.div>
+
+          {/* Compare button */}
+          <motion.div
+            className="mt-5"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.5, ease: EASE }}
+          >
+            <button
+              onClick={toggleCompare}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 ${
+                isInCompare(listing._id)
+                  ? 'bg-gold text-white hover:bg-gold/85'
+                  : 'border border-white/35 text-white/85 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              {isInCompare(listing._id) ? (
+                <><IoCheckmarkOutline className="w-4 h-4" /> Added to comparison</>
+              ) : (
+                <><IoGitCompareOutline className="w-4 h-4" /> Add to comparison table</>
+              )}
+            </button>
+            {compareMsg && (
+              <p className="mt-2 text-xs text-red-300">{compareMsg}</p>
+            )}
           </motion.div>
 
           {/* Quick specs */}
