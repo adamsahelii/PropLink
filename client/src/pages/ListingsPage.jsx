@@ -14,7 +14,6 @@ import CityProfiles from '../components/CityProfiles'
 import useListings from '../hooks/useListings'
 import useMarketData from '../hooks/useMarketData'
 import { staggerContainer } from '../utils/motion'
-
 // ── Filter data ───────────────────────────────────────────────────────────────
 
 const CITIES = [
@@ -596,7 +595,6 @@ export default function ListingsPage() {
 
         </div>
       </section>
-
       <Footer />
     </div>
   )

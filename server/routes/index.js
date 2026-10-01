@@ -7,6 +7,7 @@ router.get('/test', (_req, res) => {
 })
 
 router.use('/auth', require('./auth'))
+router.use('/smart-search', require('./smartSearch'))
 router.use('/listings', require('./listings'))
 router.use('/favorites', require('./favorites'))
 router.use('/analytics', require('./analytics'))

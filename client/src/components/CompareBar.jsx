@@ -17,7 +17,7 @@ export default function CompareBar() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.25 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-8 z-50"
+          className="fixed bottom-6 right-6 z-50"
         >
           <Link
             to="/compare"
