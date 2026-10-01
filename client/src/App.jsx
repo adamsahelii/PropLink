@@ -24,6 +24,7 @@ import FavoritesPage from './pages/FavoritesPage'
 import OwnerAnalyticsPage from './pages/OwnerAnalyticsPage'
 import ComparePage from './pages/ComparePage'
 import CompareBar from './components/CompareBar'
+import AiSearchDrawer from './components/AiSearchDrawer'
 import MyInquiriesPage from './pages/MyInquiriesPage'
 import OwnerInboxPage from './pages/OwnerInboxPage'
 function App() {
@@ -77,6 +78,7 @@ function App() {
         </Route>
       </Routes>
       <CompareBar />
+      <AiSearchDrawer />
       </CompareProvider>
       </FavoritesProvider>
     </AuthProvider>
