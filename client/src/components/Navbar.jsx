@@ -329,7 +329,7 @@ if (isAdmin) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden mx-4 mt-2 rounded-2xl bg-white/97 backdrop-blur-xl shadow-2xl border border-black/5 overflow-hidden"
+            className="md:hidden mx-4 mt-2 rounded-2xl bg-white backdrop-blur-xl shadow-2xl border border-black/5 overflow-hidden"
           >
             <div className="px-6 py-5 flex flex-col gap-4">
               {/* Nav links */}
