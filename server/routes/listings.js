@@ -18,6 +18,7 @@ const {
 
 const { protect, authorize } = require('../middleware/auth')
 const { upload } = require('../middleware/upload')
+const { listUsers, setUserStatus } = require('../controllers/adminUserController')
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
@@ -33,7 +34,8 @@ router.get('/my', protect, authorize('owner', 'admin'), getMyListings)
 // Two segments, so it never collides with the single-segment /:slug route below
 router.get('/my/:id', protect, authorize('owner', 'admin'), getMyListingById)
 router.get('/admin/pending', protect, authorize('admin'), getPendingListings)
-
+router.get('/admin/users', protect, authorize('admin'), listUsers)
+router.patch('/admin/users/:id/status', protect, authorize('admin'), setUserStatus)
 // ── Public — dynamic by slug (after static routes) ───────────────────────────
 
 router.get('/:slug', getListingBySlug)

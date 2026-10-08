@@ -27,6 +27,7 @@ import CompareBar from './components/CompareBar'
 import AiSearchDrawer from './components/AiSearchDrawer'
 import MyInquiriesPage from './pages/MyInquiriesPage'
 import OwnerInboxPage from './pages/OwnerInboxPage'
+import AdminUsersPage from './pages/AdminUsersPage'
 function App() {
   return (
     <AuthProvider>
@@ -60,6 +61,7 @@ function App() {
 {/* ── Protected — admin only ──────────────────────────────── */}
 <Route element={<ProtectedRoute roles={['admin']} />}>
   <Route path="/admin" element={<AdminPage />} />
+  <Route path="/admin/users" element={<AdminUsersPage />} />
 </Route>
         {/* ── Protected — any authenticated user ─────────────────── */}
         <Route element={<ProtectedRoute />}>
