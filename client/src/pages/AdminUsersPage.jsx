@@ -14,6 +14,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(false)
   const [busyId, setBusyId]   = useState(null)
+  const [query, setQuery]     = useState('')
 
   const loadUsers = useCallback(async () => {
     setLoading(true)
@@ -33,6 +34,13 @@ export default function AdminUsersPage() {
   }, [token])
 
   useEffect(() => { loadUsers() }, [loadUsers])
+
+  const q = query.trim().toLowerCase()
+  const filtered = q
+    ? users.filter(u =>
+        u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      )
+    : users
 
   async function toggleStatus(user) {
     setBusyId(user._id)
@@ -97,6 +105,19 @@ export default function AdminUsersPage() {
           </div>
         )}
 
+        {/* Search */}
+        {!loading && !error && (
+          <div className="mb-5">
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search by name or email…"
+              className="w-full sm:max-w-xs rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:border-forest/40"
+            />
+          </div>
+        )}
+
         {/* Table */}
         {!loading && !error && (
           <motion.div
@@ -117,7 +138,7 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(u => (
+                  {filtered.map(u => (
                     <tr key={u._id} className="border-t border-black/[0.04]">
                       <td className="px-5 py-4 font-medium text-charcoal flex items-center gap-2">
                         <IoPersonOutline className="w-4 h-4 text-gold/60 shrink-0" />
