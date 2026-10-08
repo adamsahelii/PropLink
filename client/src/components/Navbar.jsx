@@ -227,63 +227,67 @@ if (isAdmin) {
                       Profile Settings
                     </Link>
 
-                    {/* Saved Properties */}
-                    <Link
-                      to="/favorites"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
-                    >
-                      <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
-                      Saved Properties
-                    </Link>
+                    {!isAdmin && (
+                      <>
+                        {/* Saved Properties */}
+                        <Link
+                          to="/favorites"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                        >
+                          <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
+                          Saved Properties
+                        </Link>
 
-                    {/* My Inquiries */}
-                    <Link
-                      to="/my-inquiries"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
-                    >
-                      <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
-                      My Inquiries
-                    </Link>
+                        {/* My Inquiries */}
+                        <Link
+                          to="/my-inquiries"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                        >
+                          <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
+                          My Inquiries
+                        </Link>
 
-                    {/* Compare Properties */}
-                    <Link
-                      to="/compare"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
-                    >
-                      <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
-                      Compare Properties
-                      {compareIds.length > 0 && (
-                        <span className="ml-auto text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
-                          {compareIds.length}
-                        </span>
-                      )}
-                    </Link>
+                        {/* Compare Properties */}
+                        <Link
+                          to="/compare"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                        >
+                          <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
+                          Compare Properties
+                          {compareIds.length > 0 && (
+                            <span className="ml-auto text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
+                              {compareIds.length}
+                            </span>
+                          )}
+                        </Link>
 
-                    {/* Owner Dashboard */}
-                    {canManageListings && (
-                      <Link
-                        to="/analytics"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
-                      >
-                        <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
-                        Owner Dashboard
-                      </Link>
-                    )}
+                        {/* Owner Dashboard */}
+                        {canManageListings && (
+                          <Link
+                            to="/analytics"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                          >
+                            <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
+                            Owner Dashboard
+                          </Link>
+                        )}
 
-                    {/* Owner Inbox */}
-                    {canManageListings && (
-                      <Link
-                        to="/inbox"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
-                      >
-                        <IoMailOutline className="w-4 h-4" aria-hidden="true" />
-                        Inbox
-                      </Link>
+                        {/* Owner Inbox */}
+                        {canManageListings && (
+                          <Link
+                            to="/inbox"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-charcoal/70 hover:text-forest hover:bg-ivory transition-colors duration-150 border-b border-black/5"
+                          >
+                            <IoMailOutline className="w-4 h-4" aria-hidden="true" />
+                            Inbox
+                          </Link>
+                        )}
+                      </>
                     )}
 
                     {/* Logout */}
@@ -377,49 +381,53 @@ if (isAdmin) {
                       <IoPersonOutline className="w-4 h-4" aria-hidden="true" />
                       Profile Settings
                     </Link>
-                    <Link
-                      to="/favorites"
-                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
-                    >
-                      <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
-                      Saved Properties
-                    </Link>
-                    <Link
-                      to="/my-inquiries"
-                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
-                    >
-                      <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
-                      My Inquiries
-                    </Link>
-                    <Link
-                      to="/compare"
-                      className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
-                    >
-                      <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
-                      Compare Properties
-                      {compareIds.length > 0 && (
-                        <span className="text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
-                          {compareIds.length}
-                        </span>
-                      )}
-                    </Link>
-                    {canManageListings && (
-                      <Link
-                        to="/analytics"
-                        className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
-                      >
-                        <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
-                        Owner Dashboard
-                      </Link>
-                    )}
-                    {canManageListings && (
-                      <Link
-                        to="/inbox"
-                        className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
-                      >
-                        <IoMailOutline className="w-4 h-4" aria-hidden="true" />
-                        Inbox
-                      </Link>
+                    {!isAdmin && (
+                      <>
+                        <Link
+                          to="/favorites"
+                          className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                        >
+                          <IoHeartOutline className="w-4 h-4" aria-hidden="true" />
+                          Saved Properties
+                        </Link>
+                        <Link
+                          to="/my-inquiries"
+                          className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                        >
+                          <IoChatbubblesOutline className="w-4 h-4" aria-hidden="true" />
+                          My Inquiries
+                        </Link>
+                        <Link
+                          to="/compare"
+                          className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                        >
+                          <IoGitCompareOutline className="w-4 h-4" aria-hidden="true" />
+                          Compare Properties
+                          {compareIds.length > 0 && (
+                            <span className="text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-gold text-white">
+                              {compareIds.length}
+                            </span>
+                          )}
+                        </Link>
+                        {canManageListings && (
+                          <Link
+                            to="/analytics"
+                            className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                          >
+                            <IoBusinessOutline className="w-4 h-4" aria-hidden="true" />
+                            Owner Dashboard
+                          </Link>
+                        )}
+                        {canManageListings && (
+                          <Link
+                            to="/inbox"
+                            className="flex items-center gap-2.5 text-sm font-medium text-charcoal/70 hover:text-forest transition-colors duration-150 px-1"
+                          >
+                            <IoMailOutline className="w-4 h-4" aria-hidden="true" />
+                            Inbox
+                          </Link>
+                        )}
+                      </>
                     )}
                     <button
                       onClick={handleLogout}
