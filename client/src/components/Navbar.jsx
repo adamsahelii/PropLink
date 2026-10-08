@@ -60,24 +60,27 @@ export default function Navbar() {
     }
   }, [user, token])
 
-  // Insert "Add Residence" right after "Find My Place" for owners/admins only
 const isOwnerOrAdmin = user?.role === 'owner' || user?.role === 'admin'
 const isAdmin = user?.role === 'admin'
-let navLinks = isOwnerOrAdmin
-  ? NAV_LINKS.flatMap(link =>
-      link.to === '/find-my-place'
-        ? [link, { label: 'Add Residence', to: '/add-residence' }, { label: 'My Properties', to: '/my-properties' }]
-        : [link]
-    )
-  : NAV_LINKS
 
-// Admins get the review queue + user management links at the end
+let navLinks
 if (isAdmin) {
+  // Admins get a focused console nav, not the full buyer menu
   navLinks = [
-    ...navLinks,
+    { label: 'Home',         to: '/' },
+    { label: 'Listings',     to: '/listings' },
     { label: 'Review Queue', to: '/admin' },
-    { label: 'Users', to: '/admin/users' },
+    { label: 'Users',        to: '/admin/users' },
   ]
+} else if (isOwnerOrAdmin) {
+  // Owners: public menu + their property-management links
+  navLinks = NAV_LINKS.flatMap(link =>
+    link.to === '/find-my-place'
+      ? [link, { label: 'Add Residence', to: '/add-residence' }, { label: 'My Properties', to: '/my-properties' }]
+      : [link]
+  )
+} else {
+  navLinks = NAV_LINKS
 }
 
   const [scrolled,     setScrolled]     = useState(false)
