@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const AppError = require('../utils/AppError')
 const asyncHandler = require('../utils/asyncHandler')
+const sendEmail = require('../utils/sendEmail')
 
 // ── GET /api/admin/users ──────────────────────────────────────────────────────
 // Admin-only. Lists all users (password excluded by schema select:false).
@@ -37,6 +38,33 @@ exports.setUserStatus = asyncHandler(async (req, res, next) => {
 
   user.isActive = isActive
   await user.save({ validateBeforeSave: false })
+
+  // Notify the user by email (best-effort — never block the admin action)
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: isActive
+        ? 'Your PropLink account has been reactivated'
+        : 'Your PropLink account has been deactivated',
+      html: isActive
+        ? `
+          <h2>Account reactivated</h2>
+          <p>Hi ${user.name},</p>
+          <p>Good news — an administrator has reactivated your PropLink account.
+             You can sign in again here:</p>
+          <p><a href="${clientUrl}/login">${clientUrl}/login</a></p>
+        `
+        : `
+          <h2>Account deactivated</h2>
+          <p>Hi ${user.name},</p>
+          <p>An administrator has deactivated your PropLink account, so you can no longer sign in.</p>
+          <p>If you believe this is a mistake, please contact support by replying to this email.</p>
+        `,
+    })
+  } catch (err) {
+    console.error('Status-change email failed:', err.message)
+  }
 
   res.status(200).json({
     success: true,
