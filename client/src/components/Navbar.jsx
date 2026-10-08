@@ -71,9 +71,13 @@ let navLinks = isOwnerOrAdmin
     )
   : NAV_LINKS
 
-// Admins get the review queue link at the end
+// Admins get the review queue + user management links at the end
 if (isAdmin) {
-  navLinks = [...navLinks, { label: 'Review Queue', to: '/admin' }]
+  navLinks = [
+    ...navLinks,
+    { label: 'Review Queue', to: '/admin' },
+    { label: 'Users', to: '/admin/users' },
+  ]
 }
 
   const [scrolled,     setScrolled]     = useState(false)
