@@ -1,0 +1,440 @@
+{
+  "model": "openai/gpt-oss-120b (Groq)",
+  "temperature": 0,
+  "overallQueryAccuracy": 100,
+  "fieldLevelAccuracy": 100,
+  "queriesPassed": 25,
+  "totalQueries": 25,
+  "byCategory": {
+    "clear": {
+      "pass": 12,
+      "total": 12
+    },
+    "ambiguous": {
+      "pass": 5,
+      "total": 5
+    },
+    "unsupported": {
+      "pass": 5,
+      "total": 5
+    },
+    "robustness": {
+      "pass": 3,
+      "total": 3
+    }
+  },
+  "rows": [
+    {
+      "id": "Q01",
+      "category": "clear",
+      "query": "Apartment for rent in Beirut",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "got": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q02",
+      "category": "clear",
+      "query": "I want to buy land in Batroun",
+      "expected": {
+        "city": "Batroun",
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "got": {
+        "city": "Batroun",
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q03",
+      "category": "clear",
+      "query": "Apartment for sale in Jounieh under 150000",
+      "expected": {
+        "city": "Jounieh",
+        "propertyType": "apartment",
+        "purpose": "sale",
+        "maxPrice": 150000
+      },
+      "got": {
+        "city": "Jounieh",
+        "propertyType": "apartment",
+        "purpose": "sale",
+        "maxPrice": 150000
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q04",
+      "category": "clear",
+      "query": "Rent an apartment in Tripoli between 400 and 700 dollars",
+      "expected": {
+        "city": "Tripoli",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "minPrice": 400,
+        "maxPrice": 700
+      },
+      "got": {
+        "city": "Tripoli",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "minPrice": 400,
+        "maxPrice": 700
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q05",
+      "category": "clear",
+      "query": "Land for sale in Zahle",
+      "expected": {
+        "city": "Zahle",
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "got": {
+        "city": "Zahle",
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q06",
+      "category": "clear",
+      "query": "Apartment in Beirut for rent above 1000",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "minPrice": 1000
+      },
+      "got": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "minPrice": 1000
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q07",
+      "category": "clear",
+      "query": "Cheap apartment to rent in Saida under 500",
+      "expected": {
+        "city": "Saida",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "maxPrice": 500
+      },
+      "got": {
+        "keyword": "cheap",
+        "city": "Saida",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "maxPrice": 500
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q08",
+      "category": "clear",
+      "query": "Buy an apartment in Byblos",
+      "expected": {
+        "city": "Byblos",
+        "propertyType": "apartment",
+        "purpose": "sale"
+      },
+      "got": {
+        "city": "Byblos",
+        "propertyType": "apartment",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q09",
+      "category": "clear",
+      "query": "Apartment for rent in Hamra, Beirut",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "got": {
+        "keyword": "Hamra",
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q10",
+      "category": "clear",
+      "query": "Looking to rent an apartment near AUB in Beirut under 900",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "maxPrice": 900
+      },
+      "got": {
+        "keyword": "near AUB",
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent",
+        "maxPrice": 900
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q11",
+      "category": "clear",
+      "query": "Sea view apartment for sale in Jounieh",
+      "expected": {
+        "city": "Jounieh",
+        "propertyType": "apartment",
+        "purpose": "sale"
+      },
+      "got": {
+        "keyword": "sea view",
+        "city": "Jounieh",
+        "propertyType": "apartment",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q12",
+      "category": "clear",
+      "query": "Plot of land for sale in the Bekaa",
+      "expected": {
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "got": {
+        "propertyType": "land",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q13",
+      "category": "ambiguous",
+      "query": "Somewhere nice to live",
+      "expected": {},
+      "got": {},
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q14",
+      "category": "ambiguous",
+      "query": "A cheap place in the mountains",
+      "expected": {},
+      "got": {},
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q15",
+      "category": "ambiguous",
+      "query": "Something with a sea view",
+      "expected": {},
+      "got": {
+        "keyword": "sea view"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q16",
+      "category": "ambiguous",
+      "query": "A good investment property",
+      "expected": {
+        "purpose": [
+          "sale"
+        ]
+      },
+      "got": {},
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q17",
+      "category": "ambiguous",
+      "query": "A family home near a good school",
+      "expected": {},
+      "got": {
+        "keyword": "family home near a good school"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q18",
+      "category": "unsupported",
+      "query": "3 bedroom apartment for rent in Beirut",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "got": {
+        "keyword": "3 bedroom",
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q19",
+      "category": "unsupported",
+      "query": "Furnished studio for rent in Beirut",
+      "expected": {
+        "city": "Beirut",
+        "purpose": "rent"
+      },
+      "got": {
+        "keyword": "furnished",
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q20",
+      "category": "unsupported",
+      "query": "Villa with a pool for sale in Faqra",
+      "expected": {
+        "city": "Faqra",
+        "purpose": "sale"
+      },
+      "got": {
+        "keyword": "pool",
+        "city": "Faqra",
+        "purpose": "sale"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q21",
+      "category": "unsupported",
+      "query": "Office space for rent in Beirut",
+      "expected": {
+        "city": "Beirut",
+        "purpose": "rent"
+      },
+      "got": {
+        "city": "Beirut",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q22",
+      "category": "unsupported",
+      "query": "Apartment for rent in Beirut with parking and a balcony",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "got": {
+        "city": "Beirut",
+        "propertyType": "apartment",
+        "purpose": "rent"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q23",
+      "category": "robustness",
+      "query": "asdfgh qwerty",
+      "expected": {},
+      "got": {},
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q24",
+      "category": "robustness",
+      "query": "I want to sell my car",
+      "expected": {},
+      "got": {},
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    },
+    {
+      "id": "Q25",
+      "category": "robustness",
+      "query": "Apartment for rent or sale in Beirut",
+      "expected": {
+        "city": "Beirut",
+        "propertyType": "apartment"
+      },
+      "got": {
+        "city": "Beirut",
+        "propertyType": "apartment"
+      },
+      "error": null,
+      "wrongFields": [],
+      "pass": true
+    }
+  ]
+}

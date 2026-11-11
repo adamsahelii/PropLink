@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const { smartSearch } = require('../controllers/smartSearchController')
+const { aiLimiter } = require('../middleware/rateLimit')
 
-router.post('/', smartSearch)
+// Rate limited: each call reaches the external AI service.
+router.post('/', aiLimiter, smartSearch)
 
 module.exports = router

@@ -22,7 +22,13 @@ Return ONLY a JSON object. Include a key only when the user implies it, otherwis
 - minPrice: number (USD)
 - maxPrice: number (USD)
 Never invent values outside the allowed lists. If the user says "buy" or "buying", set purpose to "sale".
+If the sentence is not a property search or implies no filter, return an empty object {}.
 User sentence: "${query}"`
+
+  // Returned to the client when the sentence cannot be interpreted as filters
+  // (nonsense, off-topic, or a model JSON failure). The search page then simply
+  // shows unfiltered results instead of breaking with an error.
+  const emptyResult = () => res.status(200).json({ success: true, filters: {} })
 
   let aiJson
   try {
@@ -33,7 +39,7 @@ User sentence: "${query}"`
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-                model: 'openai/gpt-oss-120b',
+        model: 'openai/gpt-oss-120b',
         temperature: 0,
         response_format: { type: 'json_object' },
         messages: [{ role: 'user', content: prompt }],
@@ -41,10 +47,20 @@ User sentence: "${query}"`
     })
     if (!r.ok) {
       const body = await r.text()
+      // The model could not produce valid JSON for this sentence (common for
+      // gibberish or clearly non-property input). Degrade gracefully.
+      if (r.status === 400 && body.includes('json_validate_failed')) {
+        return emptyResult()
+      }
+      // Anything else (auth, rate limit, outage) is a real service error.
       throw new Error(`Groq ${r.status}: ${body}`)
     }
     const data = await r.json()
-    aiJson = JSON.parse(data.choices[0].message.content)
+    try {
+      aiJson = JSON.parse(data.choices[0].message.content)
+    } catch {
+      return emptyResult() // unparseable model content -> no filters
+    }
   } catch (err) {
     console.error('SMART SEARCH ERROR:', err)
     return res.status(503).json({ success: false, debug: String(err.message || err) })
