@@ -9,14 +9,20 @@ const errorHandler = require('./middleware/errorHandler')
 const app = express()
 
 // ── CORS: only trusted origins ────────────────────────────────────────────────
-// Allowed origins come from CORS_ORIGINS (comma-separated) or CLIENT_URL,
-// defaulting to the local dev client. Requests with no Origin header
-// (server-to-server, curl, health checks) are allowed; a browser request
-// from an unlisted origin receives no CORS headers and is blocked.
-const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_URL || 'http://localhost:5173')
+// The local dev client and the deployed client are always allowed, so the app
+// works in development and in production with no extra configuration. Further
+// origins can be added through CORS_ORIGINS (comma-separated) or CLIENT_URL.
+// Requests with no Origin header (server-to-server, curl, health checks) are
+// allowed; a browser request from an unlisted origin receives no CORS headers.
+const DEFAULT_ORIGINS = [
+  'http://localhost:5173',
+  'https://prop-link-pi.vercel.app',
+]
+const extraOrigins = (process.env.CORS_ORIGINS || process.env.CLIENT_URL || '')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean)
+const allowedOrigins = [...new Set([...DEFAULT_ORIGINS, ...extraOrigins])]
 
 const corsOptions = {
   origin(origin, cb) {
